@@ -17,7 +17,7 @@ if [ ! -f "iteration.txt" ]; then
 fi
 source iteration.txt
 
-#TODO change file, to encapsule everything in a while loop that sleeps the corresponding time to reset the API limit 
+#TODO change file to do a workarounf the API limit 
 
 #the limit is 1000 objects, each call can retrieve a page of maxium 100
 # 1000/100 = 10 maxium loop iterations
