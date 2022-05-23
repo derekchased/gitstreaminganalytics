@@ -5,32 +5,42 @@ cd resultsapi/
 mkdir -p tmpresults/
 
 #if file not exits, create with initial value
-#page variable will be used to save with page are we on
-if [ ! -f "page.txt" ]; then
-    echo "PAGE=1" > page.txt
+#date variable will be used to save with date is the last we retrieve information of
+if [ ! -f "date.txt" ]; then
+    echo "DATE=2021-05-01" > date.txt
 fi
-source "page.txt"
+source "date.txt"
 
-#iteration variable used to save which iteration of the json are we generating
-if [ ! -f "iteration.txt" ]; then
-    echo "ITERATION=1" > iteration.txt
-fi
-source iteration.txt
+#retrieve token
+source "tokenAlv.txt"
 
-#TODO change file to do a workarounf the API limit 
-
-#the limit is 1000 objects, each call can retrieve a page of maxium 100
-# 1000/100 = 10 maxium loop iterations
-for i in {1..10}
+# The Search API has a custom rate limit. For requests using Basic Authentication, 
+#you can make up to 30 requests per minute.
+# https://docs.github.com/en/rest/search#rate-limit
+#
+#the limit for each day is 1000 objects, each call can retrieve a page of maxium 100
+# https://docs.github.com/en/rest/overview/resources-in-the-rest-api
+#
+# 1000/100 = 10 maxium calls each day 
+# 30 requests minute / 10 calls each day = 3 days until wait for reset
+while true
 do
-    #the github api has the limit of 100 objects per page 
-    #preprocess with jq to get the information we need
-    curl -s https://api.github.com/search/repositories\?q\=created:2021-05-01..2022-05-01\&per_page=100\&page=${PAGE} | jq .items > "tmpresults/${i}.json";
-    ((PAGE=PAGE+1))
-    echo "PAGE=$PAGE" > page.txt
-    sleep 0.01
+    for i in {1..3}
+    do
+        for j in {1..10}
+        do
+            #with more tokens we can do up to 3 days each loop iteration, instead of 1 
+            #preprocess a bit with jq to retrieve the information we need
+            curl -u rv0lt:$TOKENALV -s https://api.github.com/search/repositories\?q\=created:${DATE}..${DATE}\&per_page=100\&page=${j} | jq .items > "tmpresults/${j}.json";
+            sleep 0.01
+        done
+
+        jq -s 'add' tmpresults/* > ${DATE}.json
+        #https://unix.stackexchange.com/questions/49053/how-do-i-add-x-days-to-date-and-get-new-date
+        DATE=date -d "$DATE+1days"
+        echo "DATE=$DATE" > date.txt
+        rm tmpresults/*
+        #sleep some time to reset limit
+        sleep 1.10m
+    done
 done
-jq -s 'add' tmpresults/* > ${ITERATION}.json
-((ITERATION=ITERATION+1))
-echo "ITERATION=$ITERATION" > iteration.txt
-rm tmpresults/*
