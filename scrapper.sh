@@ -37,10 +37,11 @@ do
 
         jq -s 'add' tmpresults/* > ${DATE}.json
         #https://unix.stackexchange.com/questions/49053/how-do-i-add-x-days-to-date-and-get-new-date
-        DATE=date -d "$DATE+1days"
+        DATE=`date '+%C%y-%m-%d' -d "$DATE+1days"`
         echo "DATE=$DATE" > date.txt
         rm tmpresults/*
-        #sleep some time to reset limit
-        sleep 1.10m
+    sleep 0.01
     done
+#sleep some time to reset limit
+sleep 1.10m
 done
