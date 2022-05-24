@@ -1,0 +1,32 @@
+#cloud-config
+
+apt_update: true
+apt_upgrade: true
+
+byobu_default: system
+
+runcmd: 
+- snap install microk8s --classic --channel=latest/stable
+- usermod -a -G microk8s ubuntu
+- chown -f -R ubuntu ~/.kube
+- microk8s status --wait-ready
+- microk8s enable helm3
+- alias kubectl='microk8s kubectl' # add to bashrc
+- kubectl config use-context microk8s
+#- minikube dashboard
+#- alias helm='microk8s helm3'
+#- helm repo add apache https://pulsar.apache.org/charts
+#- helm repo update
+#- git clone https://github.com/apache/pulsar-helm-chart
+#- cd pulsar-helm-chart
+#- ./scripts/pulsar/prepare_helm_release.sh -n pulsar -k pulsar-mini -c
+#- helm install --values examples/values-minikube.yaml --set initialize=true --namespace pulsar pulsar-mini apache/pulsar --create-namespace
+
+
+
+final_message: |
+  cloud-init has finished
+  version: $version
+  timestamp: $timestamp
+  datasource: $datasource
+  uptime: $uptime
