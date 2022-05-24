@@ -1,0 +1,17 @@
+#cloud-config
+
+apt_update: true
+apt_upgrade: true
+
+byobu_default: system
+
+runcmd: 
+- install python3-pip
+- pip install python-openstackclient
+
+final_message: |
+  cloud-init has finished
+  version: $version
+  timestamp: $timestamp
+  datasource: $datasource
+  uptime: $uptime
