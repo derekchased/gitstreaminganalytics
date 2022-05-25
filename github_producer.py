@@ -1,9 +1,9 @@
 from curses import reset_shell_mode
 from email import header
 import requests
-import os
 import datetime
 import pulsar
+import time
 
 
 # create producer
@@ -46,32 +46,31 @@ def query_github_languages(start_date: datetime, num_days: int, tokens: list) ->
     """Makes calls to github API and sends received data to consumer"""
     curr_date = start_date
 
-    while True:
-        for token in tokens:
-            # set token for query request
-            headers = {'Authorization': f'token {token}'}
+    for _ in range(num_days):
+        for j in range(10):
+            for token in tokens:
+                # set token for query request
+                headers = {'Authorization': f'token {token}'}
+                query_url = f"https://api.github.com/search/repositories?q=created:{curr_date}..{curr_date}&per_page=100&page={j}"
+                # issue API request
+                req = requests.get(query_url, headers=headers)
+                # transform to json
+                req_json  = req.json()
+                # only get necessary information
+                ls_of_dicts = req_json["items"] # returns list
 
-            for _ in range(num_days):
-                for j in range(10):
-                    query_url = f"https://api.github.com/search/repositories?q=created:{curr_date}..{curr_date}&per_page=100&page={j}"
-                    # issue API request
-                    req = requests.get(query_url, headers=headers)
-                    # transform to json
-                    req_json  = req.json()
-                    # only get necessary information
-                    req_json = req_json["items"]
-
-                    res_ls = get_values_by_key(req_json, "language")
-
-                    # producer should send data to consumer. 
-                    for res in res_ls:
-                        if isinstance(res, str):
-                            producer.send((res).encode('utf_8'))
-                        else:
-                            pass
-
-                # increment day
-                curr_date += datetime.timedelta(days=1)
+                # iterate through list and send 'language' value to consumer
+                for dictionary in ls_of_dicts:
+                    # select key "language"
+                    lang_res = dictionary["language"]
+                    # make sure it's indeed a string
+                    if isinstance(lang_res, str):
+                        # send to pulsar consumer
+                        producer.send((lang_res).encode('utf_8'))
+                    else:
+                        pass
+        # increment day
+        curr_date += datetime.timedelta(days=1)
 
 
 
