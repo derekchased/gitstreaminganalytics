@@ -15,18 +15,25 @@ source "date.txt" # $DATE later
 source "githubtoken.txt" # $GITHUBTOKEN later
 
 # The Search API has a custom rate limit. For requests using Basic Authentication, 
-#you can make up to 30 requests per minute.
+# you can make up to 30 requests per minute.
 # https://docs.github.com/en/rest/search#rate-limit
 #
-#the limit for each day is 1000 objects, each call can retrieve a page of maxium 100
+# the limit for each call with pagination is 1000 objects, each page can retrieve a maxium of 100
 # https://docs.github.com/en/rest/overview/resources-in-the-rest-api
 #
-# 1000/100 = 10 maxium calls each day 
-# 30 requests minute / 10 calls each day = 3 days until wait for reset
+# 1000/100 = 10 maxium calls for each date 
+# 30 requests minute / 10 requests each day = 3 days until wait for reset
 while true
 do
     for i in {1..3}
     do
+        #if date variable is up to date, sleep until next day
+        if [ "$DATE" = `date '+%C%y-%m-%d'` ]; then
+            # calculate seconds until next day at 00:05
+            # https://gist.github.com/mowings/a32fbf4dd46d9fb9661822056ceda91c
+            SECS=$(expr `date -d "tomorrow 00:05" +%s` - `date -d "now" +%s`)
+            sleep $SECS
+        fi
         for j in {1..10}
         do
             #with more tokens we can do up to 3 days each loop iteration, instead of 1 
@@ -44,4 +51,5 @@ do
     done
 #sleep some time to reset limit
 sleep 1.50m
+
 done
