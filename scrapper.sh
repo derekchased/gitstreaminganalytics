@@ -4,15 +4,15 @@ mkdir -p resultsapi/
 cd resultsapi/
 mkdir -p tmpresults/
 
-#if file not exits, create with initial value
+#if file not exits, create with initial valuex
 #date variable will be used to save with date is the last we retrieve information of
 if [ ! -f "date.txt" ]; then
     echo "DATE=2021-05-01" > date.txt
 fi
-source "date.txt"
+source "date.txt" # $DATE later
 
-#retrieve token
-source "tokenAlv.txt"
+#retrieve token to access github api (use github token)
+source "githubtoken.txt" # $GITHUBTOKEN later
 
 # The Search API has a custom rate limit. For requests using Basic Authentication, 
 #you can make up to 30 requests per minute.
@@ -31,7 +31,7 @@ do
         do
             #with more tokens we can do up to 3 days each loop iteration, instead of 1 
             #preprocess a bit with jq to retrieve the information we need
-            curl -u rv0lt:$TOKENALV -s https://api.github.com/search/repositories\?q\=created:${DATE}..${DATE}\&per_page=100\&page=${j} | jq .items > "tmpresults/${j}.json";
+            curl -u FrankJonasmoelle:$GITHUBTOKEN -s https://api.github.com/search/repositories\?q\=created:${DATE}..${DATE}\&per_page=100\&page=${j} | jq .items > "tmpresults/${j}.json";
             sleep 0.01
         done
 
