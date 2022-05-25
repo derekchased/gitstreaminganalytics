@@ -12,9 +12,21 @@ client = pulsar.Client('pulsar://localhost:6650')
 # Create a producer on the topic that consumer can subscribe to
 producer = client.create_producer('languages_topic')
 
-# get github token
-with open('githubtoken.txt', 'r') as file:
-    GITHUB_TOKEN = file.read().rstrip()
+
+def get_tokens(filepaths: list):
+    """
+    takes list of strings of filepaths to .txt files that contain github token
+
+    e.g., ["filepath_1.txt", "filepath_2.txt"]
+    
+    returns the stored tokens. 
+    """
+    tokens = []
+    for filepath in filepaths:
+        with open(filepath, 'r') as file:
+            token = file.read().rstrip()
+            tokens.append(token)
+    return tokens
 
 
 def get_values_by_key(github_json: dict, key: str) -> list:
@@ -30,33 +42,41 @@ def get_values_by_key(github_json: dict, key: str) -> list:
     return stored_values
 
 
-def query_github(start_date: datetime, num_days: int, key="language", token=GITHUB_TOKEN) -> list:
+def query_github_languages(start_date: datetime, num_days: int, tokens: list) -> list:
     """Makes calls to github API and sends received data to consumer"""
     curr_date = start_date
 
-    for _ in range(num_days):
-        for j in range(3):
-            print(curr_date)
-            query_url = f"https://api.github.com/search/repositories?q=created:{curr_date}..{curr_date}&per_page=100&page={j}"
-            # issue API request
-            req = requests.get(query_url)
-            # transform to json
-            req_json  = req.json()
-            # only get necessary information
-            req_json = req_json["items"]
+    while True:
+        for token in tokens:
+            # set token for query request
+            headers = {'Authorization': f'token {token}'}
 
-            res_ls = get_values_by_key(req_json, key)
+            for _ in range(num_days):
+                for j in range(10):
+                    query_url = f"https://api.github.com/search/repositories?q=created:{curr_date}..{curr_date}&per_page=100&page={j}"
+                    # issue API request
+                    req = requests.get(query_url, headers=headers)
+                    # transform to json
+                    req_json  = req.json()
+                    # only get necessary information
+                    req_json = req_json["items"]
 
-            # producer should send data to consumer. 
-            for res in res_ls:
-                if isinstance(res, str):
-                    producer.send((res).encode('utf_8'))
-                else:
-                    pass
+                    res_ls = get_values_by_key(req_json, "language")
 
-        # increment day
-        curr_date += datetime.timedelta(days=1)
+                    # producer should send data to consumer. 
+                    for res in res_ls:
+                        if isinstance(res, str):
+                            producer.send((res).encode('utf_8'))
+                        else:
+                            pass
+
+                # increment day
+                curr_date += datetime.timedelta(days=1)
 
 
-# query github for next 2 days
-query_github(datetime.date(2021, 5, 1), 2)
+
+if __name__=="__main__":
+    # get github tokens
+    tokens = get_tokens(["githubtoken_jonas.txt"])
+    # query github for next 2 days
+    query_github_languages(datetime.date(2021, 5, 1), 2, tokens)

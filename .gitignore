@@ -1,7 +1,8 @@
 # ignore uppmax credentials
 UPP*
 
-*.ipynb
+test.ipynb
+githubtoken_jonas.txt
 
 # ignore sublime sftp config file
 sftp-config.json
