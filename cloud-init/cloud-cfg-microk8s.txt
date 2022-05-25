@@ -21,8 +21,8 @@ runcmd:
 - chown -f -R ubuntu ~/.kube
 - microk8s status --wait-ready
 - microk8s enable helm3
-- alias kubectl='microk8s kubectl' # add to bashrc
-- kubectl config use-context microk8s
+#- alias kubectl='microk8s kubectl' # add to bashrc
+- microk8s kubectl config use-context microk8s
 #- minikube dashboard
 #- alias helm='microk8s helm3'
 #- helm repo add apache https://pulsar.apache.org/charts
