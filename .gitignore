@@ -1,5 +1,8 @@
-# 
+# ignore uppmax credentials
 UPP*
+
+# ignore sublime sftp config file
+sftp-config.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
