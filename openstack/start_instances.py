@@ -35,8 +35,10 @@ parser.add_argument("-u", "--userdata",
 
 args = parser.parse_args()
 
-for arg in vars(args):
-    print(arg, getattr(args, arg))
+_trace = False
+if _trace == True:
+    for arg in vars(args):
+        print(arg, getattr(args, arg))
 
 def convert_flavor(f):
     if f == "s":
@@ -61,7 +63,6 @@ floating_ip_pool_name = None
 floating_ip = None
 image_name = "Ubuntu 20.04 - 2021.03.23"
 
-
 loader = loading.get_plugin_loader('password')
 
 auth = loader.load_from_options(auth_url=env['OS_AUTH_URL'],
@@ -72,11 +73,6 @@ auth = loader.load_from_options(auth_url=env['OS_AUTH_URL'],
                                 #project_id=env['OS_PROJECT_ID'],
                                 user_domain_name=env['OS_USER_DOMAIN_NAME'])
 
-cfg_file_path =  Path.cwd().parent / "cloud-init" / cfg_file
-if os.path.isfile(cfg_file_path):
-    userdata = open(cfg_file_path)
-else:
-    sys.exit(f"{cfg_file} is not in current working directory")
 
 # Establish connection
 sess = session.Session(auth=auth)
@@ -93,14 +89,19 @@ if private_net != None:
 else:
     sys.exit("private-net not defined.")
 
-secgroups = ['default']
+secgroups = ['default', 'derek_c3_2']
 
 print ("Creating instances ... ")
 instances = []
 instances_status = []
 
 for i in range(int(num_vms)):
-    print(i)
+    cfg_file_path =  Path.cwd().parent / "cloud-init" / cfg_file
+    if os.path.isfile(cfg_file_path):
+        userdata = open(cfg_file_path)
+    else:
+        sys.exit(f"{cfg_file} is not in current working directory")
+
     instance = nova.servers.create(name=name_vm+"-"+str(i), image=image, flavor=flavor, key_name=ssh_key,userdata=userdata, nics=nics,security_groups=secgroups)
     instances.append(instance)
     instances_status.append(instance.status)
