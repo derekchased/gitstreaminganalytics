@@ -10,6 +10,8 @@ client = pulsar.Client('pulsar://localhost:6650')
 # Create a producer on the topic that consumer can subscribe to
 producer_1 = client.create_producer('languages_topic')
 producer_2 = client.create_producer('commits_topic')
+producer_3 = client.create_producer('tests_topic')
+producer_4 = client.create_producer('cont_int_topic')
 
 
 def get_tokens(filepaths: list):
@@ -68,6 +70,36 @@ def get_programming_language(dictionary):
         pass
                     
 
+def get_unit_tests(dictionary, headers):
+    """ TODO """
+    query_url3 = dictionary[0]["contents_url"][0:-7] 
+    req = requests.get(query_url3 , headers=headers)
+    for item in req.json():
+        if('test' in item['name']):
+            # TODO: send to producer
+            print('sent to producer')
+            break
+    return query_url3
+        
+        
+def get_continuous_integration(dictionary, query_url3, headers):
+    # https://docs.github.com/en/actions/learn-github-actions/understanding-github-actions
+    query_url4 = query_url3+".github/workflows"
+    req = requests.get(query_url4 , headers=headers)
+    #if it hasnt have workflow directory, then it will return message not found, otherwise it
+    #will return the object with all the items in such directory (and the indexs will be integer)
+    try:
+        # message: "not found"
+        # in this case the workflow directory doesn't exist
+        req.json()["message"]
+    except TypeError as e:
+        # if it exists, there is no message, i.e., TypeError
+        # send it to producer
+        # TODO: send to producer
+        print("Sent to producer")
+
+    
+
 def query_github(start_date: datetime, num_days: int, tokens: list):
     """Makes calls to github API and sends received data to consumer"""
     curr_date = start_date
@@ -90,37 +122,18 @@ def query_github(start_date: datetime, num_days: int, tokens: list):
                     ls_of_dicts = req_json["items"] # returns list
 
                     # iterate through list and send 'language' value to consumer
-                    for dictionary in ls_of_dicts:
-                        # get number of commits of porject
-                        get_num_commits(dictionary, token) #TODO: send it to producer
-                        # get name of programming language
-                        lang_res = get_programming_language(dictionary)
-                        # make sure it's indeed a string
-                        if isinstance(lang_res, str):
-                            # send to pulsar consumer
-                            producer.send((lang_res).encode('utf_8'))
-                        else:
-                            pass
-                        #Q3 unit test
-                        query_url3 = req_json[0]["contents_url"][0:-7]
-                        req = requests.get(query_url3 , headers=headers)
-                        for item in req.json():
-                            if('test' in item['name']):
-                                print('sent to producer')
-                                break
-                        #Q4 CI/CD
-                        # https://docs.github.com/en/actions/learn-github-actions/understanding-github-actions
-                        query_url4 = query_url3+".github/workflows"
-                        req = requests.get(query_url4 , headers=headers)
-                        #if it hasnt have workflow directory, then it will return message not found, otherwise it
-                        #will return the object with all the items in such directory (and the indexs will be integer)
-                        #
-                        #
-                        #
-                        try:
-                            req.json()["message"]
-                        except TypeError as e:
-                            print("Sent to producer")
+                    for dictionary in ls_of_dicts:                        
+                        # Q1 programming languages
+                        get_programming_language(dictionary)
+                        
+                        # Q2 nmber of commits of project
+                        get_num_commits(dictionary, headers) 
+                        
+                        #Q3 unit tests                      
+                        query_url3 = get_unit_tests(dictionary, headers)
+                        
+                        #Q4 CI/CD                          
+                        get_continuous_integration(dictionary, query_url3, headers)
 
                 except KeyError as e:
                     print(e)                    
@@ -142,6 +155,6 @@ if __name__=="__main__":
     
     start = time.time()
     # query github for next 3 days
-    query_github_languages(datetime.date(2021, 5, 1), 30, tokens)
+    query_github(datetime.date(2021, 5, 1), 30, tokens)
     end = time.time()
     print('duration: ', end-start)
