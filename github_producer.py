@@ -8,7 +8,8 @@ import time
 client = pulsar.Client('pulsar://localhost:6650')
 
 # Create a producer on the topic that consumer can subscribe to
-producer = client.create_producer('languages_topic')
+producer_1 = client.create_producer('languages_topic')
+producer_2 = client.create_producer('commits_topic')
 
 
 def get_tokens(filepaths: list):
@@ -47,7 +48,9 @@ def get_num_commits(dictionary, token):
         r = r.json()
     except Exception as e:
         print(e) 
-    return len(r) # length of this list correspons to the number of commits
+    num_commits = len(r) # length of this list correspons to the number of commits
+    
+    # TODO: send to consumer
     
             
 def get_programming_language(dictionary):
@@ -57,10 +60,15 @@ def get_programming_language(dictionary):
     Input: dictionary that contains repository information
     """
     language = dictionary["language"]
-    return language
+    
+    # send to pulsar consumer
+    if isinstance(language, str):
+        producer_1.send((language).encode('utf_8'))
+    else:
+        pass
+                    
 
-
-def query_github_languages(start_date: datetime, num_days: int, tokens: list):
+def query_github(start_date: datetime, num_days: int, tokens: list):
     """Makes calls to github API and sends received data to consumer"""
     curr_date = start_date
 
@@ -84,15 +92,10 @@ def query_github_languages(start_date: datetime, num_days: int, tokens: list):
                     # iterate through list and send 'language' value to consumer
                     for dictionary in ls_of_dicts:
                         # get number of commits of porject
-                        num_commits = get_num_commits(dictionary, token) #TODO: send it to producer
+                        get_num_commits(dictionary, token) #TODO: send it to producer
                         # get name of programming language
-                        lang_res = get_programming_language(dictionary)
-                        # make sure it's indeed a string
-                        if isinstance(lang_res, str):
-                            # send to pulsar consumer
-                            producer.send((lang_res).encode('utf_8'))
-                        else:
-                            pass
+                        get_programming_language(dictionary)
+                                    
                 except KeyError as e:
                     print(e)                    
                     print('KeyError when selecting "items"')
