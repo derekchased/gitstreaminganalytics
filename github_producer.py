@@ -30,7 +30,7 @@ def get_tokens(filepaths: list):
     return tokens
 
 
-def get_num_commits(dictionary, token):
+def get_num_commits(dictionary, token, project_name):
     """
     Returns the number of commits for a given project
     
@@ -51,8 +51,8 @@ def get_num_commits(dictionary, token):
     except Exception as e:
         print(e) 
     num_commits = len(r) # length of this list correspons to the number of commits
-    
-    # TODO: send to consumer
+        
+    producer_2.send((project_name).encode('utf_8'))
     
             
 def get_programming_language(dictionary):
@@ -71,7 +71,7 @@ def get_programming_language(dictionary):
         pass
                     
 
-def get_unit_tests(dictionary, headers,language):
+def get_unit_tests(dictionary, headers, language):
     """ TODO """
     query_url3 = dictionary["contents_url"][0:-7] 
     req = requests.get(query_url3 , headers=headers)
@@ -83,7 +83,7 @@ def get_unit_tests(dictionary, headers,language):
     return False, query_url3
         
         
-def get_continuous_integration(dictionary, query_url3, headers,language):
+def get_continuous_integration(dictionary, query_url3, headers, language):
     # https://docs.github.com/en/actions/learn-github-actions/understanding-github-actions
     query_url4 = query_url3+".github/workflows"
     req = requests.get(query_url4 , headers=headers)
@@ -128,7 +128,7 @@ def query_github(start_date: datetime, num_days: int, tokens: list):
                         language = get_programming_language(dictionary)
                         
                         # Q2 nmber of commits of project
-                        get_num_commits(dictionary, headers) 
+                        get_num_commits(dictionary, headers, project_name=dictionary["name"]) 
                         
                         #Q3 unit tests                      
                         has_test, query_url3 = get_unit_tests(dictionary, headers,language)
