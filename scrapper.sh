@@ -34,7 +34,7 @@ do
             SECS=$(expr `date -d "tomorrow 00:05" +%s` - `date -d "now" +%s`)
             sleep $SECS
         fi
-        for j in {1..10}
+        for j in {1..10} # 10*100perpage = 1000 objects per call
         do
             #with more tokens we can do up to 3 days each loop iteration, instead of 1 
             #preprocess a bit with jq to retrieve the information we need
@@ -49,7 +49,6 @@ do
         rm tmpresults/*
     sleep 0.01
     done
-#sleep some time to reset limit
-sleep 1.50m
-
+    #sleep some time to reset limit
+    sleep 1.50m
 done
