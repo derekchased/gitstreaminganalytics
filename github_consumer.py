@@ -31,9 +31,9 @@ while True:
         
         # TODO: Store data in MongoDB?!
         store_results(data)
-        print('current RESULTS: ')
-        for key, val in RESULTS.items():
-            print(key, val)
+        # print('current RESULTS: ')
+        # for key, val in RESULTS.items():
+        #     print(key, val)
 
 
         consumer.acknowledge(msg)

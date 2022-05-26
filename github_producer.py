@@ -27,12 +27,45 @@ def get_tokens(filepaths: list):
     return tokens
 
 
-def query_github_languages(start_date: datetime, num_days: int, tokens: list) -> list:
+def get_num_commits(dictionary, token):
+    """
+    Returns the number of commits for a given project
+    
+    Input: dictionary that contains repository information
+    """
+    commits_url = dictionary["commits_url"] # returns of form 'https://api.github.com/repos/sindrets/diffview.nvim/commits{/sha}'
+    # remove suffix so it can be used for api call
+    try:
+        commits_url = commits_url.removesuffix("{/sha}")
+    except Exception as e:
+        print(e)
+    
+    # issue request
+    headers = {'Authorization': f'token {token}'}
+    try:
+        r = requests.get(commits_url, headers=headers)
+        r = r.json()
+    except Exception as e:
+        print(e) 
+    return len(r) # length of this list correspons to the number of commits
+    
+            
+def get_programming_language(dictionary):
+    """
+    Returns the programming language for a given project
+    
+    Input: dictionary that contains repository information
+    """
+    language = dictionary["language"]
+    return language
+
+
+def query_github_languages(start_date: datetime, num_days: int, tokens: list):
     """Makes calls to github API and sends received data to consumer"""
     curr_date = start_date
 
     for _ in range(num_days):
-        for token in tokens:
+        for token in tokens: # enables possibility to exceed api limit through using different tokens
             for j in range(10):
                 # set token for query request
                 headers = {'Authorization': f'token {token}'}
@@ -42,7 +75,6 @@ def query_github_languages(start_date: datetime, num_days: int, tokens: list) ->
                     req = requests.get(query_url, headers=headers)
                 except Exception as e:
                     print(e) 
-                    print('API exception')
                 # transform to json
                 req_json  = req.json()
                 # only get necessary information
@@ -51,7 +83,9 @@ def query_github_languages(start_date: datetime, num_days: int, tokens: list) ->
 
                     # iterate through list and send 'language' value to consumer
                     for dictionary in ls_of_dicts:
-                        # select key "language"
+                        # get number of commits of porject
+                        num_commits = get_num_commits(dictionary, token) #TODO: send it to producer
+                        # send value of key "language" to producer 
                         lang_res = dictionary["language"]
                         # make sure it's indeed a string
                         if isinstance(lang_res, str):
