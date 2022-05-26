@@ -51,8 +51,8 @@ def get_num_commits(dictionary, token, project_name):
     except Exception as e:
         print(e) 
     num_commits = len(r) # length of this list correspons to the number of commits
-        
-    producer_2.send((project_name).encode('utf_8'))
+
+    producer_2.send(((project_name, num_commits)).encode('utf_8'))
     
             
 def get_programming_language(dictionary):
