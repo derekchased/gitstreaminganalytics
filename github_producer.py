@@ -94,8 +94,34 @@ def query_github(start_date: datetime, num_days: int, tokens: list):
                         # get number of commits of porject
                         get_num_commits(dictionary, token) #TODO: send it to producer
                         # get name of programming language
-                        get_programming_language(dictionary)
-                                    
+                        lang_res = get_programming_language(dictionary)
+                        # make sure it's indeed a string
+                        if isinstance(lang_res, str):
+                            # send to pulsar consumer
+                            producer.send((lang_res).encode('utf_8'))
+                        else:
+                            pass
+                        #Q3 unit test
+                        query_url3 = req_json[0]["contents_url"][0:-7]
+                        req = requests.get(query_url3 , headers=headers)
+                        for item in req.json():
+                            if('test' in item['name']):
+                                print('sent to producer')
+                                break
+                        #Q4 CI/CD
+                        # https://docs.github.com/en/actions/learn-github-actions/understanding-github-actions
+                        query_url4 = query_url3+".github/workflows"
+                        req = requests.get(query_url4 , headers=headers)
+                        #if it hasnt have workflow directory, then it will return message not found, otherwise it
+                        #will return the object with all the items in such directory (and the indexs will be integer)
+                        #
+                        #
+                        #
+                        try:
+                            req.json()["message"]
+                        except TypeError as e:
+                            print("Sent to producer")
+
                 except KeyError as e:
                     print(e)                    
                     print('KeyError when selecting "items"')
