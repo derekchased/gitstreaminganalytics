@@ -1,0 +1,32 @@
+#cloud-config
+
+apt_update: true
+apt_upgrade: true
+
+byobu_default: system
+
+packages:
+  - python3-pip
+  - software-properties-common
+
+runcmd: 
+- pip3 install python-openstackclient
+- add-apt-repository --yes --update ppa:ansible/ansible
+- apt -y install ansible
+
+users:
+ - name: ubuntu
+   sudo: ALL=(ALL) NOPASSWD:ALL
+   home: /home/ubuntu
+   shell: /bin/bash
+   ssh_authorized_keys:
+     - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDovuDAesh4iks+TKxkh9S2wPYqGj/oMeC30Z8if9nrnZmQ1uJD1EV1ernfW4Gi1esIfN23Vuc1qDB1/a8dzCTeAF+1KX5N7KemkkLdZAJARLk430PDjBgmb1H4Q4Oroo0N8pWR5CF62cHCfy0g9aHAVSUteG96U6dcpDeO9E856UHyMVTealAld9nPYIe0AUvyDFe5E0o6tYV0rGktOKBlcv18ce/uVjrCQhloyYrsoA7yyEKoUUHVr/KPLiqVr4TWoxlumeAqzhJHs/5Ne/EZ92PRTj4wTZBGb8r7EnjbU1nhf4OMGOZrSw724tzh6orAY7vVdJXZlvErAx9uqxGp Generated-by-Nova
+     - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDNdQq+znqMcO1zxbCbd1y8EykFHjZlKqknXItv3qIaNOlunKwAHLmEUIuOAf1ZCTiWtzOp2CGULeohD58auseGkIOUumUASW3br7bRMDojfLOwDYEGgFa+MSVxGMl5SSZ+NOEdod/sNPkc1EqxS/xfIFcI2gleE8PsGQVdz86YBSYtvFhZ/Yx86FDWOBATLqmNHMNb5ZHAdGoblucSKBA2i9akc67jECJlOh/l3A7nkEmYLIEupksNqSW50sRIEGVx6Clt27nPDq+KD4uZc1A8smvbF6I9SbVLrIA4XJEAmB9Wgda0epDbIKqTrnLwsNlDqP9cuvRSIwzVLEZyxRqcKjYsl96CHc5srPvf9ewKCDCMYdco5GLzSNNa5ukE3eMzE2uTQfXlsJqdbaHwi4FBfJ04MGRUA8uYVeWTvRqUVru8uQSzfeFPJUvK0P8Xfwf/fSP2cXOVI5OXkK+IkcHvHv8ls37d0wwYz47ufnj1xp+bowZ8lKiSmp48jXIr4Is= derek@derek-2.local
+     - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCuLA/J4GU1HlaOJov9DA9SBGaURvn/erU5zKQGrV82uGOCzolWwHSnIGQccsBf8Yvs8Uu8KkpteXG3B6GghrToKeXmFT4iYg0+vw3JC5eB+084U3TgRQE6z3m31Hyzg0OZ5UUPCvAB339E8pX03WTg08ChQ52vu3x4vVXY/Fx6oj0IF7n524JiFW+vzVTnMkq/H2jhM8bLx900abfNItM5rircg79uxnOzkQkZxpBEJhB7VXZcfN3Tn4s9LS40HHE+S0nUtvQfmKgjP5w8J1p+ghLbZChmrIonCczGTENGO7RN43I6eVvNV4qDGu23IQQEPmMqP4Vv0fPmEjVHX+OVmcCXF77QXo/QGN3clw07mTsWGFFX/tJkjrVaDn1IzMFxInoERAzHBIfd0PMAdDUZZPd4Mq375C5QAGemAkzCv0jWDbFgvOKDTt4KW8J1f3JuHV/Sf12Z3wZSmXP125BQ8Wiu2QIRJeG27f5I0detkb5ZxqkP4FOrBmpFairMNg0= jonas@LAPTOP-HKSM61V2
+     
+final_message: |
+  cloud-init has finished
+  version: $version
+  timestamp: $timestamp
+  datasource: $datasource
+  uptime: $uptime
