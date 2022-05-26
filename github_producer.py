@@ -3,6 +3,7 @@ import requests
 import datetime
 import pulsar
 import time
+import json
 
 # create producer
 client = pulsar.Client('pulsar://localhost:6650')
@@ -52,7 +53,8 @@ def get_num_commits(dictionary, token, project_name):
         print(e) 
     num_commits = len(r) # length of this list correspons to the number of commits
 
-    producer_2.send(((project_name, num_commits)).encode('utf_8'))
+    output = json.dums({project_name: num_commits})
+    producer_2.send((output).encode('utf_8'))
     
             
 def get_programming_language(dictionary):
