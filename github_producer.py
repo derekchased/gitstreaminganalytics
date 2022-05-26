@@ -66,23 +66,24 @@ def get_programming_language(dictionary):
     # send to pulsar consumer
     if isinstance(language, str):
         producer_1.send((language).encode('utf_8'))
+        return language
     else:
         pass
                     
 
-def get_unit_tests(dictionary, headers):
+def get_unit_tests(dictionary, headers,language):
     """ TODO """
-    query_url3 = dictionary[0]["contents_url"][0:-7] 
+    query_url3 = dictionary["contents_url"][0:-7] 
     req = requests.get(query_url3 , headers=headers)
     for item in req.json():
         if('test' in item['name']):
             # TODO: send to producer
-            print('sent to producer')
-            break
-    return query_url3
+            producer_3.send((language).encode('utf_8'))
+            return True, query_url3
+    return False, query_url3
         
         
-def get_continuous_integration(dictionary, query_url3, headers):
+def get_continuous_integration(dictionary, query_url3, headers,language):
     # https://docs.github.com/en/actions/learn-github-actions/understanding-github-actions
     query_url4 = query_url3+".github/workflows"
     req = requests.get(query_url4 , headers=headers)
@@ -96,7 +97,7 @@ def get_continuous_integration(dictionary, query_url3, headers):
         # if it exists, there is no message, i.e., TypeError
         # send it to producer
         # TODO: send to producer
-        print("Sent to producer")
+        producer_4.send((language).encode('utf_8'))
 
     
 
@@ -124,16 +125,16 @@ def query_github(start_date: datetime, num_days: int, tokens: list):
                     # iterate through list and send 'language' value to consumer
                     for dictionary in ls_of_dicts:                        
                         # Q1 programming languages
-                        get_programming_language(dictionary)
+                        language = get_programming_language(dictionary)
                         
                         # Q2 nmber of commits of project
                         get_num_commits(dictionary, headers) 
                         
                         #Q3 unit tests                      
-                        query_url3 = get_unit_tests(dictionary, headers)
-                        
-                        #Q4 CI/CD                          
-                        get_continuous_integration(dictionary, query_url3, headers)
+                        has_test, query_url3 = get_unit_tests(dictionary, headers,language)
+                        #Q4 CI/CD
+                        if(has_test):                          
+                            get_continuous_integration(dictionary, query_url3, headers,language)
 
                 except KeyError as e:
                     print(e)                    
