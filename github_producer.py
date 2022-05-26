@@ -85,8 +85,8 @@ def query_github_languages(start_date: datetime, num_days: int, tokens: list):
                     for dictionary in ls_of_dicts:
                         # get number of commits of porject
                         num_commits = get_num_commits(dictionary, token) #TODO: send it to producer
-                        # send value of key "language" to producer 
-                        lang_res = dictionary["language"]
+                        # get name of programming language
+                        lang_res = get_programming_language(dictionary)
                         # make sure it's indeed a string
                         if isinstance(lang_res, str):
                             # send to pulsar consumer
