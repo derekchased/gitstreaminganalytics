@@ -75,7 +75,6 @@ def get_num_commits(dictionary, token, project_name):
 
 def get_unit_tests(dictionary, headers, language):
     """ TODO """
-    print('in get_unit_tests')
     query_url3 = dictionary["contents_url"][0:-7] 
     req = requests.get(query_url3 , headers=headers)
     for item in req.json():
