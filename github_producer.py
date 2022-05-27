@@ -78,15 +78,13 @@ def get_continuous_integration(query_url3, language,tokens):
     
     query_url4 = query_url3+".github/workflows"
     req = call_api(query_url4,tokens)
+    if(req != False):
     #if it hasnt have workflow directory, then it will return message not found, otherwise it
     #will return the object with all the items in such directory (and the indexs will be integer)
-    try:
-        # message: "not found"
-        # in this case the workflow directory doesn't exist
-        req.json()["message"]
-    except TypeError as e:
-        # if it exists, there is no message, i.e., TypeError
-        # send it to producer
+    # message: "not found"
+    # in this case the workflow directory doesn't exist
+    # if it exists, there is no message, i.e., TypeError
+    # send it to producer
         producer_4.send((language).encode('utf_8'))
 
 def call_api(query_url, tokens):
@@ -98,9 +96,9 @@ def call_api(query_url, tokens):
             except Exception as e:
                 print(e)
             status = req.status_code
-            print(status)
-            if (status != 200):
-                print('token limit exceeded. Changing it')
+            if (status == 404):
+                return False
+            if(status != 200):
                 continue
             print(req)
             return req
