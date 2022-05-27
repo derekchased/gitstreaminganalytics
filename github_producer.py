@@ -47,40 +47,25 @@ def get_num_commits(dictionary, tokens, project_name):
     r = r.json()
     num_commits = len(r) # length of this list correspons to the number of commits
 
-    output = json.dums({project_name: num_commits})
+    output = json.dumps({project_name: num_commits})
     producer_2.send((output).encode('utf_8'))
     
-            
-def get_programming_language(dictionary):
-    """
-    Returns the programming language for a given project
-    
-    Input: dictionary that contains repository information
-    """
-    language = dictionary["language"]
-    
-    # send to pulsar consumer
-    if isinstance(language, str):
-        producer_1.send((language).encode('utf_8'))
-        return language
-    else:
-        pass
-                    
 
-def get_unit_tests(dictionary, headers, language,tokens):
+def get_unit_tests(dictionary, language,tokens):
     """ TODO """
     query_url3 = dictionary["contents_url"][0:-7] 
     req = call_api(query_url3,tokens)
     for item in req.json():
         if('test' in item['name']):
-            # TODO: send to producer
+            # send to producer
             producer_3.send((language).encode('utf_8'))
             return True, query_url3
     return False, query_url3
         
         
-def get_continuous_integration(dictionary, query_url3, headers, language,tokens):
+def get_continuous_integration(query_url3, language,tokens):
     # https://docs.github.com/en/actions/learn-github-actions/understanding-github-actions
+    
     query_url4 = query_url3+".github/workflows"
     req = call_api(query_url4,tokens)
     #if it hasnt have workflow directory, then it will return message not found, otherwise it
@@ -92,7 +77,6 @@ def get_continuous_integration(dictionary, query_url3, headers, language,tokens)
     except TypeError as e:
         # if it exists, there is no message, i.e., TypeError
         # send it to producer
-        # TODO: send to producer
         producer_4.send((language).encode('utf_8'))
 
 def call_api(query_url,tokens):
@@ -108,6 +92,21 @@ def call_api(query_url,tokens):
                 continue
             return req
         #sleep a bit              
+
+def get_programming_language(dictionary):
+    """
+    Returns the programming language for a given project
+    
+    Input: dictionary that contains repository information
+    """
+    language = dictionary["language"]
+    
+    # send to pulsar consumer
+    if isinstance(language, str):
+        producer_1.send((language).encode('utf_8'))
+        return language
+    else:
+        pass
 
 def query_github(start_date: datetime, num_days: int, tokens: list):
     """Makes calls to github API and sends received data to consumer"""
@@ -142,7 +141,7 @@ def query_github(start_date: datetime, num_days: int, tokens: list):
                     has_test, query_url3 = get_unit_tests(dictionary,language,tokens)
                     #Q4 CI/CD
                     if(has_test):                          
-                        get_continuous_integration(dictionary, query_url3,language,tokens)
+                        get_continuous_integration(query_url3,language,tokens)
 
             except KeyError as e:
                 print(e)                    
@@ -151,12 +150,7 @@ def query_github(start_date: datetime, num_days: int, tokens: list):
         # increment day
         curr_date += datetime.timedelta(days=1)
         print(curr_date)
-        # sleep some time to reset limit
-        # TODO: how long should sleep be?
-        # time.sleep(90)
         
-
-
 
 if __name__=="__main__":
     # get github tokens
@@ -164,6 +158,6 @@ if __name__=="__main__":
     
     start = time.time()
     # query github for next 3 days
-    query_github(datetime.date(2021, 5, 1), 30, tokens)
+    query_github(datetime.date(2021, 5, 1), 1, tokens)
     end = time.time()
     print('duration: ', end-start)
