@@ -38,6 +38,10 @@ def get_num_commits(dictionary, tokens, project_name):
     
     Input: dictionary that contains repository information
     """
+    
+    print('in commits')
+
+
     commits_url = dictionary["commits_url"] # returns of form 'https://api.github.com/repos/sindrets/diffview.nvim/commits{/sha}'
     # remove suffix so it can be used for api call
     commits_url = commits_url[:-6]
@@ -53,11 +57,15 @@ def get_num_commits(dictionary, tokens, project_name):
 
 def get_unit_tests(dictionary, language,tokens):
     """ TODO """
+    
+    print('in unit tests')
+
+
     query_url3 = dictionary["contents_url"][0:-7] 
     req = call_api(query_url3,tokens)
     for item in req.json():
         if('test' in item['name']):
-            # send to producer
+            # send language that contains unit tests to producer
             producer_3.send((language).encode('utf_8'))
             return True, query_url3
     return False, query_url3
@@ -65,6 +73,8 @@ def get_unit_tests(dictionary, language,tokens):
         
 def get_continuous_integration(query_url3, language,tokens):
     # https://docs.github.com/en/actions/learn-github-actions/understanding-github-actions
+    
+    print('in continuous integration')
     
     query_url4 = query_url3+".github/workflows"
     req = call_api(query_url4,tokens)
@@ -77,7 +87,7 @@ def get_continuous_integration(query_url3, language,tokens):
     # send it to producer
         producer_4.send((language).encode('utf_8'))
 
-def call_api(query_url,tokens):
+def call_api(query_url, tokens):
     while True:
         for token in tokens:
             headers = {'Authorization': f'token {token}'}
@@ -90,6 +100,7 @@ def call_api(query_url,tokens):
                 return False
             if(status != 200):
                 continue
+            print(req)
             return req
         #sleep a bit              
 
@@ -99,6 +110,10 @@ def get_programming_language(dictionary):
     
     Input: dictionary that contains repository information
     """
+    
+    print('in programming language')
+
+
     language = dictionary["language"]
     
     # send to pulsar consumer
@@ -114,6 +129,7 @@ def query_github(start_date: datetime, num_days: int, tokens: list):
 
     for _ in range(num_days):
         for j in range(10):
+            print('j == ', j)
             # set token for query request
             #headers = {'Authorization': f'token {token}'}
             query_url = f"https://api.github.com/search/repositories?q=created:{curr_date}..{curr_date}&per_page=100&page={j}"
@@ -123,7 +139,7 @@ def query_github(start_date: datetime, num_days: int, tokens: list):
             #except Exception as e:
             #    print(e) 
             # transform to json
-            req = call_api(query_url,tokens)
+            req = call_api(query_url, tokens)
             req_json  = req.json()
             # only get necessary information
             try:
@@ -154,7 +170,7 @@ def query_github(start_date: datetime, num_days: int, tokens: list):
 
 if __name__=="__main__":
     # get github tokens
-    tokens = get_tokens(["githubtoken_jonas.txt"])
+    tokens = get_tokens(["githubtoken_jonas.txt", "githubtoken_alvaro.txt"])
     
     start = time.time()
     # query github for next 3 days
