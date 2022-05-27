@@ -1,4 +1,5 @@
 import pulsar
+import json
 #import pymongo
 
 
@@ -8,7 +9,7 @@ RESULTS = {}
 # Create a pulsar client by supplying ip address and port
 client = pulsar.Client('pulsar://localhost:6650')
 # Subscribe to a topic and subscription
-consumer = client.subscribe('languages_topic', subscription_name='github_sub_1')
+consumer = client.subscribe('commits_topic', subscription_name='github_sub_1')
 
 # mongodb client
 # mongo_db_client = pymongo.MongoClient("mongodb://localhost:27017/")
@@ -16,11 +17,11 @@ consumer = client.subscribe('languages_topic', subscription_name='github_sub_1')
 # language_collection = results_db["languages"]
 
 
-def store_results(data):
-    if data not in RESULTS.keys():
-        RESULTS[data] = 1
+def store_results(project_name,num_commits):
+    if project_name not in RESULTS.keys():
+        RESULTS[project_name] = num_commits
     else:
-        RESULTS[data] += 1
+        RESULTS[project_name] += num_commits
 
 
 while True:
@@ -29,8 +30,11 @@ while True:
         #print("Received message : ", msg.data())
         data = msg.data()
         
+        data_json = json.loads(data)
+        project_name = list(data_json.keys())[0]
+        num_commits = data_json[project_name]        
         # TODO: Store data in MongoDB?!
-        store_results(data)
+        store_results(project_name,num_commits)
         # print('current RESULTS: ')
         # for key, val in RESULTS.items():
         #     print(key, val)
