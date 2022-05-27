@@ -1,4 +1,5 @@
 from email import header
+from subprocess import call
 import requests
 import datetime
 import pulsar
@@ -31,7 +32,7 @@ def get_tokens(filepaths: list):
     return tokens
 
 
-def get_num_commits(dictionary, token, project_name):
+def get_num_commits(dictionary, tokens, project_name):
     """
     Returns the number of commits for a given project
     
@@ -39,18 +40,11 @@ def get_num_commits(dictionary, token, project_name):
     """
     commits_url = dictionary["commits_url"] # returns of form 'https://api.github.com/repos/sindrets/diffview.nvim/commits{/sha}'
     # remove suffix so it can be used for api call
-    try:
-        commits_url = commits_url.removesuffix("{/sha}")
-    except Exception as e:
-        print(e)
+    commits_url = commits_url[:-6]
     
     # issue request
-    headers = {'Authorization': f'token {token}'}
-    try:
-        r = requests.get(commits_url, headers=headers)
-        r = r.json()
-    except Exception as e:
-        print(e) 
+    r = call_api(commits_url,tokens)
+    r = r.json()
     num_commits = len(r) # length of this list correspons to the number of commits
 
     output = json.dums({project_name: num_commits})
@@ -73,10 +67,10 @@ def get_programming_language(dictionary):
         pass
                     
 
-def get_unit_tests(dictionary, headers, language):
+def get_unit_tests(dictionary, headers, language,tokens):
     """ TODO """
     query_url3 = dictionary["contents_url"][0:-7] 
-    req = requests.get(query_url3 , headers=headers)
+    req = call_api(query_url3,tokens)
     for item in req.json():
         if('test' in item['name']):
             # TODO: send to producer
@@ -85,10 +79,10 @@ def get_unit_tests(dictionary, headers, language):
     return False, query_url3
         
         
-def get_continuous_integration(dictionary, query_url3, headers, language):
+def get_continuous_integration(dictionary, query_url3, headers, language,tokens):
     # https://docs.github.com/en/actions/learn-github-actions/understanding-github-actions
     query_url4 = query_url3+".github/workflows"
-    req = requests.get(query_url4 , headers=headers)
+    req = call_api(query_url4,tokens)
     #if it hasnt have workflow directory, then it will return message not found, otherwise it
     #will return the object with all the items in such directory (and the indexs will be integer)
     try:
@@ -101,46 +95,58 @@ def get_continuous_integration(dictionary, query_url3, headers, language):
         # TODO: send to producer
         producer_4.send((language).encode('utf_8'))
 
-    
+def call_api(query_url,tokens):
+    while True:
+        for token in tokens:
+            headers = {'Authorization': f'token {token}'}
+            try:
+                req = requests.get(query_url, headers=headers)
+            except Exception as e:
+                print(e)
+            status = req.status_code
+            if (status != 200):
+                continue
+            return req
+        #sleep a bit              
 
 def query_github(start_date: datetime, num_days: int, tokens: list):
     """Makes calls to github API and sends received data to consumer"""
     curr_date = start_date
 
     for _ in range(num_days):
-        for token in tokens: # enables possibility to exceed api limit through using different tokens
-            for j in range(10):
-                # set token for query request
-                headers = {'Authorization': f'token {token}'}
-                query_url = f"https://api.github.com/search/repositories?q=created:{curr_date}..{curr_date}&per_page=100&page={j}"
-                # issue API request
-                try:
-                    req = requests.get(query_url, headers=headers)
-                except Exception as e:
-                    print(e) 
-                # transform to json
-                req_json  = req.json()
-                # only get necessary information
-                try:
-                    ls_of_dicts = req_json["items"] # returns list
+        for j in range(10):
+            # set token for query request
+            #headers = {'Authorization': f'token {token}'}
+            query_url = f"https://api.github.com/search/repositories?q=created:{curr_date}..{curr_date}&per_page=100&page={j}"
+            # issue API request
+            #try:
+            #    req = requests.get(query_url, headers=headers)
+            #except Exception as e:
+            #    print(e) 
+            # transform to json
+            req = call_api(query_url,tokens)
+            req_json  = req.json()
+            # only get necessary information
+            try:
+                ls_of_dicts = req_json["items"] # returns list
 
-                    # iterate through list and send 'language' value to consumer
-                    for dictionary in ls_of_dicts:                        
-                        # Q1 programming languages
-                        language = get_programming_language(dictionary)
-                        
-                        # Q2 nmber of commits of project
-                        get_num_commits(dictionary, headers, project_name=dictionary["name"]) 
-                        
-                        #Q3 unit tests                      
-                        has_test, query_url3 = get_unit_tests(dictionary, headers,language)
-                        #Q4 CI/CD
-                        if(has_test):                          
-                            get_continuous_integration(dictionary, query_url3, headers,language)
+                # iterate through list and send 'language' value to consumer
+                for dictionary in ls_of_dicts:                        
+                    # Q1 programming languages
+                    language = get_programming_language(dictionary)
+                    
+                    # Q2 nmber of commits of project
+                    get_num_commits(dictionary, tokens, project_name=dictionary["name"]) 
+                    
+                    #Q3 unit tests                      
+                    has_test, query_url3 = get_unit_tests(dictionary,language,tokens)
+                    #Q4 CI/CD
+                    if(has_test):                          
+                        get_continuous_integration(dictionary, query_url3,language,tokens)
 
-                except KeyError as e:
-                    print(e)                    
-                    print('KeyError when selecting "items"')
+            except KeyError as e:
+                print(e)                    
+                print('KeyError when selecting "items"')
 
         # increment day
         curr_date += datetime.timedelta(days=1)
