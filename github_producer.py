@@ -29,18 +29,40 @@ def get_tokens(filepaths: list):
             token = file.read().rstrip()
             tokens.append(token)
     return tokens
+    
+            
+def get_programming_language(dictionary):
+    """
+    Returns the programming language for a given project
+    
+    Input: dictionary that contains repository information
+    """
+    print('in get_language')
 
-
+    language = dictionary["language"]
+    
+    # send to pulsar consumer
+    if isinstance(language, str):
+        producer_1.send((language).encode('utf_8'))
+        return language
+    else:
+        pass
+                    
+                    
 def get_num_commits(dictionary, token, project_name):
     """
     Returns the number of commits for a given project
     
     Input: dictionary that contains repository information
     """
+    print('in get_num_commits')
+
+
+
     commits_url = dictionary["commits_url"] # returns of form 'https://api.github.com/repos/sindrets/diffview.nvim/commits{/sha}'
     # remove suffix so it can be used for api call
     try:
-        commits_url = commits_url.removesuffix("{/sha}")
+        commits_url = commits_url[0:-6] 
     except Exception as e:
         print(e)
     
@@ -53,33 +75,18 @@ def get_num_commits(dictionary, token, project_name):
         print(e) 
     num_commits = len(r) # length of this list correspons to the number of commits
 
-    output = json.dums({project_name: num_commits})
+    output = json.dumps({project_name: num_commits})
     producer_2.send((output).encode('utf_8'))
     
-            
-def get_programming_language(dictionary):
-    """
-    Returns the programming language for a given project
-    
-    Input: dictionary that contains repository information
-    """
-    language = dictionary["language"]
-    
-    # send to pulsar consumer
-    if isinstance(language, str):
-        producer_1.send((language).encode('utf_8'))
-        return language
-    else:
-        pass
-                    
 
 def get_unit_tests(dictionary, headers, language):
     """ TODO """
+    print('in get_unit_tests')
     query_url3 = dictionary["contents_url"][0:-7] 
     req = requests.get(query_url3 , headers=headers)
     for item in req.json():
         if('test' in item['name']):
-            # TODO: send to producer
+            # send to producer
             producer_3.send((language).encode('utf_8'))
             return True, query_url3
     return False, query_url3
@@ -87,6 +94,11 @@ def get_unit_tests(dictionary, headers, language):
         
 def get_continuous_integration(dictionary, query_url3, headers, language):
     # https://docs.github.com/en/actions/learn-github-actions/understanding-github-actions
+    
+    print('in get_unit_tests')
+
+
+
     query_url4 = query_url3+".github/workflows"
     req = requests.get(query_url4 , headers=headers)
     #if it hasnt have workflow directory, then it will return message not found, otherwise it
@@ -129,6 +141,9 @@ def query_github(start_date: datetime, num_days: int, tokens: list):
                         # Q1 programming languages
                         language = get_programming_language(dictionary)
                         
+                        if language is None:
+                            continue
+            
                         # Q2 nmber of commits of project
                         get_num_commits(dictionary, headers, project_name=dictionary["name"]) 
                         
@@ -158,6 +173,6 @@ if __name__=="__main__":
     
     start = time.time()
     # query github for next 3 days
-    query_github(datetime.date(2021, 5, 1), 30, tokens)
+    query_github(datetime.date(2021, 5, 1), 1, tokens)
     end = time.time()
     print('duration: ', end-start)
