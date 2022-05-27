@@ -9,7 +9,7 @@ RESULTS = {}
 # Create a pulsar client by supplying ip address and port
 client = pulsar.Client('pulsar://localhost:6650')
 # Subscribe to a topic and subscription
-consumer = client.subscribe('commits_topic', subscription_name='github_sub_1')
+consumer = client.subscribe('commits_topic', subscription_name='github_sub_2')
 
 # mongodb client
 # mongo_db_client = pymongo.MongoClient("mongodb://localhost:27017/")
