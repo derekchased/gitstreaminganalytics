@@ -38,10 +38,6 @@ def get_num_commits(dictionary, tokens, project_name):
     
     Input: dictionary that contains repository information
     """
-    
-    print('in commits')
-
-
     commits_url = dictionary["commits_url"] # returns of form 'https://api.github.com/repos/sindrets/diffview.nvim/commits{/sha}'
     # remove suffix so it can be used for api call
     commits_url = commits_url[:-6]
@@ -57,10 +53,6 @@ def get_num_commits(dictionary, tokens, project_name):
 
 def get_unit_tests(dictionary, language,tokens):
     """ TODO """
-    
-    print('in unit tests')
-
-
     query_url3 = dictionary["contents_url"][0:-7] 
     req = call_api(query_url3,tokens)
     for item in req.json():
@@ -72,10 +64,7 @@ def get_unit_tests(dictionary, language,tokens):
         
         
 def get_continuous_integration(query_url3, language,tokens):
-    # https://docs.github.com/en/actions/learn-github-actions/understanding-github-actions
-    
-    print('in continuous integration')
-    
+    # https://docs.github.com/en/actions/learn-github-actions/understanding-github-actions    
     query_url4 = query_url3+".github/workflows"
     req = call_api(query_url4,tokens)
     if(req != False):
@@ -100,7 +89,6 @@ def call_api(query_url, tokens):
                 return False
             if(status != 200):
                 continue
-            print(req)
             return req
         #sleep a bit              
 
@@ -110,10 +98,6 @@ def get_programming_language(dictionary):
     
     Input: dictionary that contains repository information
     """
-    
-    print('in programming language')
-
-
     language = dictionary["language"]
     
     # send to pulsar consumer
