@@ -56,7 +56,7 @@ def get_num_commits(dictionary, token, project_name):
     commits_url = dictionary["commits_url"] # returns of form 'https://api.github.com/repos/sindrets/diffview.nvim/commits{/sha}'
     # remove suffix so it can be used for api call
     try:
-        commits_url = commits_url[0:-6] 
+        commits_url = commits_url[:-6] 
     except Exception as e:
         print(e)
     
@@ -74,12 +74,17 @@ def get_num_commits(dictionary, token, project_name):
     
 
 def get_unit_tests(dictionary, headers, language):
-    """ TODO """
+    """ 
+    Returns True if unit tests exist, else False. 
+    Returns the query_url that can be used in function 'get_continuous_integration'
+    
+    Input: dictionary, language, programming language
+    """
     query_url3 = dictionary["contents_url"][0:-7] 
     req = requests.get(query_url3 , headers=headers)
     for item in req.json():
         if('test' in item['name']):
-            # send to producer
+            # send language that contains unit tests to producer
             producer_3.send((language).encode('utf_8'))
             return True, query_url3
     return False, query_url3
@@ -126,12 +131,13 @@ def query_github(start_date: datetime, num_days: int, tokens: list):
                     ls_of_dicts = req_json["items"] # returns list
 
                     # iterate through list and send 'language' value to consumer
-                    for dictionary in ls_of_dicts:                        
+                    for dictionary in ls_of_dicts:    
+                        print('looping list of dictionaries')                    
                         # Q1 programming languages
                         language = get_programming_language(dictionary)
                         
                         if language is None:
-                            continue
+                            continue # break for-loop if no language is returned
             
                         # Q2 nmber of commits of project
                         get_num_commits(dictionary, headers, project_name=dictionary["name"]) 
