@@ -37,8 +37,6 @@ def get_programming_language(dictionary):
     
     Input: dictionary that contains repository information
     """
-    print('in get_language')
-
     language = dictionary["language"]
     
     # send to pulsar consumer
@@ -55,10 +53,6 @@ def get_num_commits(dictionary, token, project_name):
     
     Input: dictionary that contains repository information
     """
-    print('in get_num_commits')
-
-
-
     commits_url = dictionary["commits_url"] # returns of form 'https://api.github.com/repos/sindrets/diffview.nvim/commits{/sha}'
     # remove suffix so it can be used for api call
     try:
@@ -95,10 +89,6 @@ def get_unit_tests(dictionary, headers, language):
 def get_continuous_integration(dictionary, query_url3, headers, language):
     # https://docs.github.com/en/actions/learn-github-actions/understanding-github-actions
     
-    print('in get_unit_tests')
-
-
-
     query_url4 = query_url3+".github/workflows"
     req = requests.get(query_url4 , headers=headers)
     #if it hasnt have workflow directory, then it will return message not found, otherwise it
@@ -110,7 +100,6 @@ def get_continuous_integration(dictionary, query_url3, headers, language):
     except TypeError as e:
         # if it exists, there is no message, i.e., TypeError
         # send it to producer
-        # TODO: send to producer
         producer_4.send((language).encode('utf_8'))
 
     
@@ -160,12 +149,7 @@ def query_github(start_date: datetime, num_days: int, tokens: list):
         # increment day
         curr_date += datetime.timedelta(days=1)
         print(curr_date)
-        # sleep some time to reset limit
-        # TODO: how long should sleep be?
-        # time.sleep(90)
         
-
-
 
 if __name__=="__main__":
     # get github tokens
