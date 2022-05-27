@@ -98,9 +98,11 @@ def call_api(query_url, tokens):
             except Exception as e:
                 print(e)
             status = req.status_code
+            print(status)
             if (status != 200):
                 print('token limit exceeded. Changing it')
                 continue
+            print(req)
             return req
         #sleep a bit              
 
