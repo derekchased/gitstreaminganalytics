@@ -152,6 +152,8 @@ def query_github(start_date: datetime, num_days: int, tokens: list):
                     # Q1 programming languages
                     language = get_programming_language(dictionary)
                     
+                    if (language is None):
+                        continue # break loop
                     # Q2 nmber of commits of project
                     get_num_commits(dictionary, tokens, project_name=dictionary["name"]) 
                     
