@@ -27,17 +27,18 @@ def store_results(project_name,num_commits):
 while True:
     msg = consumer.receive()
     try:
-        #print("Received message : ", msg.data())
         data = msg.data()
         
         data_json = json.loads(data)
         project_name = list(data_json.keys())[0]
         num_commits = data_json[project_name]        
-        # TODO: Store data in MongoDB?!
+
         store_results(project_name,num_commits)
-        # print('current RESULTS: ')
-        # for key, val in RESULTS.items():
-        #     print(key, val)
+        
+        print('current RESULTS: ')
+        for key, val in RESULTS.items():
+            print(key, val)
+            
         consumer.acknowledge(msg)
 
     except:

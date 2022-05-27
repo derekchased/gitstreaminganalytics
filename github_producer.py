@@ -110,6 +110,7 @@ def query_github(start_date: datetime, num_days: int, tokens: list):
     for _ in range(num_days):
         for token in tokens: # enables possibility to exceed api limit through using different tokens
             for j in range(10):
+                print('j == ', j)
                 # set token for query request
                 headers = {'Authorization': f'token {token}'}
                 query_url = f"https://api.github.com/search/repositories?q=created:{curr_date}..{curr_date}&per_page=100&page={j}"

@@ -27,15 +27,13 @@ while True:
     msg = consumer.receive()
     
     try:
-        #print("Received message : ", msg.data())
         data = msg.data()
         
-        # TODO: Store data in MongoDB?!
         store_results(data)
-        # print('current RESULTS: ')
-        # for key, val in RESULTS.items():
-        #     print(key, val)
-
+        
+        print('current RESULTS: ')
+        for key, val in RESULTS.items():
+            print(key, val)
 
         consumer.acknowledge(msg)
 
