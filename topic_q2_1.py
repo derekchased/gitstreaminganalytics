@@ -6,7 +6,7 @@ import time
 # Create a pulsar client by supplying ip address and port
 client = pulsar.Client('pulsar://localhost:6650')
 # Subscribe to a topic and subscription
-consumer = client.subscribe('topic_q2', subscription_name='github_sub_1')
+consumer = client.subscribe('topic_q2', subscription_name='github_sub_1', consumer_type=pulsar.ConsumerType.Shared)
 
 # create producer 
 #producer_layer_2 = client.create_producer('')
@@ -95,8 +95,10 @@ while True:
         consumer.acknowledge(msg)
         
         end = time.time()
+        print(end-start)
         count+=1
-        print('count: ', count)
+        #print('count: ', count)
+        
 
     except:
         consumer.negative_acknowledge(msg)
