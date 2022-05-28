@@ -6,7 +6,7 @@ import time
 # Create a pulsar client by supplying ip address and port
 client = pulsar.Client('pulsar://localhost:6650')
 # Subscribe to a topic and subscription
-consumer = client.subscribe('topic_commits', subscription_name='github_sub_1')
+consumer = client.subscribe('topic_q2', subscription_name='github_sub_1')
 
 # create producer 
 #producer_layer_2 = client.create_producer('')
@@ -72,16 +72,18 @@ def get_num_commits(dictionary, tokens, project_name):
     
     if r != False:
         r = r.json()
-        num_commits = len(r) # length of this list correspons to the number of commits
+        num_commits = len(r) # length of this list corresponds to the number of commits
 
         #output = json.dumps({project_name: num_commits})
         #producer_2.send((output).encode('utf_8'))
         store_results(project_name, num_commits)
 
+
 ## CONSUMER AND PRODUCER ##
 tokens = get_tokens(["githubtoken_jonas.txt", "githubtoken_alvaro.txt"])
 
 start = time.time()
+count = 0
 while True:
     msg = consumer.receive()
     try:
@@ -93,8 +95,8 @@ while True:
         consumer.acknowledge(msg)
         
         end = time.time()
-        print('curr time: ', end-start)
+        count+=1
+        print('count: ', count)
 
     except:
         consumer.negative_acknowledge(msg)
-        
