@@ -3,18 +3,23 @@ import json
 import requests
 import time
 
-
-
 # Create a pulsar client by supplying ip address and port
 client = pulsar.Client('pulsar://localhost:6650')
-
 # Subscribe to a topic and subscription
-consumer_layer_1 = client.subscribe('question2', subscription_name='github_sub_1')
+consumer = client.subscribe('question_2', subscription_name='github_sub_1')
 
 # create producer 
-#producer_layer_1 = client.create_producer('tests_contint_topic')
+#producer_layer_2 = client.create_producer('')
 
-
+RESULTS_q2 = {}
+def store_results(project_name,num_commits):
+    if project_name not in RESULTS_q2.keys():
+        RESULTS_q2[project_name] = num_commits
+    else:
+        RESULTS_q2[project_name] += num_commits
+        
+        
+        
 def get_tokens(filepaths: list):
     """
     takes list of strings of filepaths to .txt files that contain github token
@@ -44,7 +49,6 @@ def call_api(query_url, tokens):
                 return False
             if(status != 200):
                 print('changing token')
-                print(req.status_code)
                 continue
             return req
                    
@@ -65,45 +69,43 @@ def get_num_commits(dictionary, tokens, project_name):
     num_commits = len(r) # length of this list correspons to the number of commits
 
     #output = json.dumps({project_name: num_commits})
-    
-    #producer_layer_1.send((output).encode('utf_8'))
-    
-    # store data here
-    #data_json = json.loads(output)
-    # project_name = list(data_json.keys())[0]
-    # num_commits = data_json[project_name]        
-
-    store_results(project_name,num_commits)
-
-
-RESULTS={}
-def store_results(project_name,num_commits):
-    if project_name not in RESULTS.keys():
-        RESULTS[project_name] = num_commits
-    else:
-        RESULTS[project_name] += num_commits
-        
-        
+    #producer_2.send((output).encode('utf_8'))
+    store_results(project_name, num_commits)
 
 ## CONSUMER AND PRODUCER ##
 tokens = get_tokens(["githubtoken_jonas.txt", "githubtoken_alvaro.txt"])
-
 start = time.time()
+
 while True:
-    msg = consumer_layer_1.receive()
+    msg = consumer.receive()
     try:
         data = msg.data()
         dictionary = json.loads(data)
         
-        # SENDS it to next layer (consumer_layer_2)
-        get_num_commits(dictionary, tokens, project_name=dictionary["name"])
-        # print('current RESULTS: ')
-        # for key, val in RESULTS.items():
-        #     print(key, val) 
-        consumer_layer_1.acknowledge(msg)
+        get_num_commits(dictionary, tokens, dictionary["name"])
+        
+        consumer.acknowledge(msg)
+        
         end = time.time()
         print('curr time: ', end-start)
+        
+        # # prints
+        # print('current RESULTS_q1: ')
+        # for key, val in RESULTS_q1.items():
+        #     print(key, val) 
+        
+        # print("\n")
+        
+        # print('current RESULTS_q3: ')
+        # for key, val in RESULTS_q3.items():
+        #     print(key, val) 
+        
+        # print("\n")
+  
+        # print('current RESULTS_q4: ')
+        # for key, val in RESULTS_q4.items():
+        #     print(key, val) 
 
     except:
-        consumer_layer_1.negative_acknowledge(msg)
+        consumer.negative_acknowledge(msg)
         

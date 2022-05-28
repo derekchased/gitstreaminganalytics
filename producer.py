@@ -10,7 +10,7 @@ import json
 client = pulsar.Client('pulsar://localhost:6650')
 
 # Create a producer on the topic that consumer can subscribe to
-producer_q2 = client.create_producer('question2')
+producer_q2 = client.create_producer('question_2')
 producer_q134 = client.create_producer('question134')
 
 
