@@ -52,7 +52,12 @@ def get_num_commits(dictionary, tokens, project_name):
     
 
 def get_unit_tests(dictionary, language,tokens):
-    """ TODO """
+    """ 
+    Returns boolean whether there is a unit test in directory.
+    Returns the query url for function 'get_continuous_integration'
+    
+    Input: dictionary, name of programming language, tokens
+    """
     query_url3 = dictionary["contents_url"][0:-7] 
     req = call_api(query_url3,tokens)
     for item in req.json():
@@ -117,12 +122,6 @@ def query_github(start_date: datetime, num_days: int, tokens: list):
             # set token for query request
             #headers = {'Authorization': f'token {token}'}
             query_url = f"https://api.github.com/search/repositories?q=created:{curr_date}..{curr_date}&per_page=100&page={j}"
-            # issue API request
-            #try:
-            #    req = requests.get(query_url, headers=headers)
-            #except Exception as e:
-            #    print(e) 
-            # transform to json
             req = call_api(query_url, tokens)
             req_json  = req.json()
             # only get necessary information
@@ -134,16 +133,16 @@ def query_github(start_date: datetime, num_days: int, tokens: list):
                     # Q1 programming languages
                     language = get_programming_language(dictionary)
                     
-                    if (language is None):
-                        continue # break loop
-                    # Q2 nmber of commits of project
-                    get_num_commits(dictionary, tokens, project_name=dictionary["name"]) 
+                    # if (language is None):
+                    #     continue # break loop
+                    # # Q2 nmber of commits of project
+                    # get_num_commits(dictionary, tokens, project_name=dictionary["name"]) 
                     
-                    #Q3 unit tests                      
-                    has_test, query_url3 = get_unit_tests(dictionary,language,tokens)
-                    #Q4 CI/CD
-                    if(has_test):                          
-                        get_continuous_integration(query_url3,language,tokens)
+                    # #Q3 unit tests                      
+                    # has_test, query_url3 = get_unit_tests(dictionary,language,tokens)
+                    # #Q4 CI/CD
+                    # if(has_test):                          
+                    #     get_continuous_integration(query_url3,language,tokens)
 
             except KeyError as e:
                 print(e)                    
