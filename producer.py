@@ -117,41 +117,42 @@ def query_github(start_date: datetime, num_days: int, tokens: list):
     curr_date = start_date
 
     for day in range(num_days):
-        print('day == ', day)
-        # set token for query request
-        #headers = {'Authorization': f'token {token}'}
-        query_url = f"https://api.github.com/search/repositories?q=created:{curr_date}..{curr_date}&per_page=100"
-        req = call_api(query_url, tokens)
-        req_json  = req.json()
-        # only get necessary information
-        try:
-            ls_of_dicts = req_json["items"] # returns list
+        for j in range(10):
+            print('day == ', day)
+            # set token for query request
+            #headers = {'Authorization': f'token {token}'}
+            query_url = f"https://api.github.com/search/repositories?q=created:{curr_date}..{curr_date}&per_page=100&page={j}"
+            req = call_api(query_url, tokens)
+            req_json  = req.json()
+            # only get necessary information
+            try:
+                ls_of_dicts = req_json["items"] # returns list
 
-            # iterate through list and send 'language' value to consumer
-            for dictionary in ls_of_dicts:
-                
-                # output = json.dumps({project_name: num_commits})
-                # producer_2.send((output).encode('utf_8'))
-                producer_q134.send(json.dumps(dictionary).encode('utf_8'))
-                producer_q2.send(json.dumps(dictionary).encode('utf_8'))
-                                    
-            #     # Q1 programming languages
-            #     language = get_programming_language(dictionary)
-                
-            #     if (language is None):
-            #         continue # break loop
-            #     # Q2 nmber of commits of project
-            #     get_num_commits(dictionary, tokens, project_name=dictionary["name"]) 
-                
-            #     #Q3 unit tests                      
-            #     has_test, query_url3 = get_unit_tests(dictionary,language,tokens)
-            #     #Q4 CI/CD
-            #     if(has_test):                          
-            #         get_continuous_integration(query_url3,language,tokens)
+                # iterate through list and send 'language' value to consumer
+                for dictionary in ls_of_dicts:
+                    
+                    # output = json.dumps({project_name: num_commits})
+                    # producer_2.send((output).encode('utf_8'))
+                    producer_q134.send(json.dumps(dictionary).encode('utf_8'))
+                    producer_q2.send(json.dumps(dictionary).encode('utf_8'))
+                                        
+                #     # Q1 programming languages
+                #     language = get_programming_language(dictionary)
+                    
+                #     if (language is None):
+                #         continue # break loop
+                #     # Q2 nmber of commits of project
+                #     get_num_commits(dictionary, tokens, project_name=dictionary["name"]) 
+                    
+                #     #Q3 unit tests                      
+                #     has_test, query_url3 = get_unit_tests(dictionary,language,tokens)
+                #     #Q4 CI/CD
+                #     if(has_test):                          
+                #         get_continuous_integration(query_url3,language,tokens)
 
-        except KeyError as e:
-            print(e)                    
-            print('KeyError when selecting "items"')
+            except KeyError as e:
+                print(e)                    
+                print('KeyError when selecting "items"')
 
         # increment day
         curr_date += datetime.timedelta(days=1)
