@@ -6,7 +6,7 @@ import time
 # Create a pulsar client by supplying ip address and port
 client = pulsar.Client('pulsar://localhost:6650')
 # Subscribe to a topic and subscription
-consumer = client.subscribe('question_2', subscription_name='github_sub_1')
+consumer = client.subscribe('topic_commits', subscription_name='github_sub_1')
 
 # create producer 
 #producer_layer_2 = client.create_producer('')
@@ -49,6 +49,7 @@ def call_api(query_url, tokens):
                 return False
             if(status != 200):
                 print('changing token')
+                print(req.status_code)
                 continue
             return req
                    
@@ -65,17 +66,19 @@ def get_num_commits(dictionary, tokens, project_name):
     
     # issue request
     r = call_api(commits_url,tokens)
-    r = r.json()
-    num_commits = len(r) # length of this list correspons to the number of commits
+    
+    if r != False:
+        r = r.json()
+        num_commits = len(r) # length of this list correspons to the number of commits
 
-    #output = json.dumps({project_name: num_commits})
-    #producer_2.send((output).encode('utf_8'))
-    store_results(project_name, num_commits)
+        #output = json.dumps({project_name: num_commits})
+        #producer_2.send((output).encode('utf_8'))
+        store_results(project_name, num_commits)
 
 ## CONSUMER AND PRODUCER ##
 tokens = get_tokens(["githubtoken_jonas.txt", "githubtoken_alvaro.txt"])
-start = time.time()
 
+start = time.time()
 while True:
     msg = consumer.receive()
     try:
@@ -88,23 +91,6 @@ while True:
         
         end = time.time()
         print('curr time: ', end-start)
-        
-        # # prints
-        # print('current RESULTS_q1: ')
-        # for key, val in RESULTS_q1.items():
-        #     print(key, val) 
-        
-        # print("\n")
-        
-        # print('current RESULTS_q3: ')
-        # for key, val in RESULTS_q3.items():
-        #     print(key, val) 
-        
-        # print("\n")
-  
-        # print('current RESULTS_q4: ')
-        # for key, val in RESULTS_q4.items():
-        #     print(key, val) 
 
     except:
         consumer.negative_acknowledge(msg)
