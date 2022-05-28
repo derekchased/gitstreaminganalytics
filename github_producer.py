@@ -73,13 +73,13 @@ def get_continuous_integration(query_url3, language,tokens):
     query_url4 = query_url3+".github/workflows"
     req = call_api(query_url4,tokens)
     if(req != False):
-    #if it hasnt have workflow directory, then it will return message not found, otherwise it
-    #will return the object with all the items in such directory (and the indexs will be integer)
+    # if it hasnt have workflow directory, then it will return message not found, otherwise it
+    # will return the object with all the items in such directory (and the indexs will be integer)
     # message: "not found"
     # in this case the workflow directory doesn't exist
-    # if it exists, there is no message, i.e., TypeError
-    # send it to producer
+    # if it exists, there is no message, i.e., TypeError, send it to producer
         producer_4.send((language).encode('utf_8'))
+
 
 def call_api(query_url, tokens):
     while True:
@@ -93,9 +93,10 @@ def call_api(query_url, tokens):
             if (status == 404):
                 return False
             if(status != 200):
+                print('changing token')
                 continue
             return req
-        #sleep a bit              
+                   
 
 def get_programming_language(dictionary):
     """
@@ -112,41 +113,41 @@ def get_programming_language(dictionary):
     else:
         pass
 
+
 def query_github(start_date: datetime, num_days: int, tokens: list):
     """Makes calls to github API and sends received data to consumer"""
     curr_date = start_date
 
-    for _ in range(num_days):
-        for j in range(10):
-            print('j == ', j)
-            # set token for query request
-            #headers = {'Authorization': f'token {token}'}
-            query_url = f"https://api.github.com/search/repositories?q=created:{curr_date}..{curr_date}&per_page=100&page={j}"
-            req = call_api(query_url, tokens)
-            req_json  = req.json()
-            # only get necessary information
-            try:
-                ls_of_dicts = req_json["items"] # returns list
+    for day in range(num_days):
+        print('day == ', day)
+        # set token for query request
+        #headers = {'Authorization': f'token {token}'}
+        query_url = f"https://api.github.com/search/repositories?q=created:{curr_date}..{curr_date}&per_page=100"
+        req = call_api(query_url, tokens)
+        req_json  = req.json()
+        # only get necessary information
+        try:
+            ls_of_dicts = req_json["items"] # returns list
 
-                # iterate through list and send 'language' value to consumer
-                for dictionary in ls_of_dicts:                        
-                    # Q1 programming languages
-                    language = get_programming_language(dictionary)
-                    
-                    # if (language is None):
-                    #     continue # break loop
-                    # # Q2 nmber of commits of project
-                    # get_num_commits(dictionary, tokens, project_name=dictionary["name"]) 
-                    
-                    # #Q3 unit tests                      
-                    # has_test, query_url3 = get_unit_tests(dictionary,language,tokens)
-                    # #Q4 CI/CD
-                    # if(has_test):                          
-                    #     get_continuous_integration(query_url3,language,tokens)
+            # iterate through list and send 'language' value to consumer
+            for dictionary in ls_of_dicts:                        
+                # Q1 programming languages
+                language = get_programming_language(dictionary)
+                
+                if (language is None):
+                    continue # break loop
+                # Q2 nmber of commits of project
+                get_num_commits(dictionary, tokens, project_name=dictionary["name"]) 
+                
+                #Q3 unit tests                      
+                has_test, query_url3 = get_unit_tests(dictionary,language,tokens)
+                #Q4 CI/CD
+                if(has_test):                          
+                    get_continuous_integration(query_url3,language,tokens)
 
-            except KeyError as e:
-                print(e)                    
-                print('KeyError when selecting "items"')
+        except KeyError as e:
+            print(e)                    
+            print('KeyError when selecting "items"')
 
         # increment day
         curr_date += datetime.timedelta(days=1)
@@ -158,7 +159,7 @@ if __name__=="__main__":
     tokens = get_tokens(["githubtoken_jonas.txt", "githubtoken_alvaro.txt"])
     
     start = time.time()
-    # query github for next 3 days
+    # query github for next x days
     query_github(datetime.date(2021, 5, 1), 1, tokens)
     end = time.time()
     print('duration: ', end-start)
