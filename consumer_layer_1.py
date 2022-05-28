@@ -1,6 +1,7 @@
 import pulsar
 import json
 import requests
+import time
 
 
 
@@ -86,6 +87,7 @@ def store_results(project_name,num_commits):
 ## CONSUMER AND PRODUCER ##
 tokens = get_tokens(["githubtoken_jonas.txt", "githubtoken_alvaro.txt"])
 
+start = time.time()
 while True:
     msg = consumer_layer_1.receive()
     try:
@@ -98,6 +100,8 @@ while True:
         for key, val in RESULTS.items():
             print(key, val) 
         consumer_layer_1.acknowledge(msg)
+        end = time.time()
+        print('curr time: ', end-start)
 
     except:
         consumer_layer_1.negative_acknowledge(msg)
