@@ -36,17 +36,14 @@ while True:
     
     try:
         data_q1 = msg_q1.data()
-        data_q2 = msg_q2.data()
-        data_q3 = msg_q3.data()
-        data_q4 = msg_q4.data()
+        # data_q2 = msg_q2.data()
+        # data_q3 = msg_q3.data()
+        # data_q4 = msg_q4.data()
 
-        store_results(data)
+        store_results(data_q1)
         
-        print('current RESULTS: ')
-        for key, val in RESULTS.items():
-            print(key, val)
 
-        consumer.acknowledge(msg)
+        consumer_q1.acknowledge(msg_q1)
 
     except:
-        consumer.negative_acknowledge(msg)
+        consumer_q1.negative_acknowledge(msg_q1)

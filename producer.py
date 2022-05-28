@@ -30,55 +30,6 @@ def get_tokens(filepaths: list):
     return tokens
 
 
-# def get_num_commits(dictionary, tokens, project_name):
-#     """
-#     Returns the number of commits for a given project
-    
-#     Input: dictionary that contains repository information
-#     """
-#     commits_url = dictionary["commits_url"] # returns of form 'https://api.github.com/repos/sindrets/diffview.nvim/commits{/sha}'
-#     # remove suffix so it can be used for api call
-#     commits_url = commits_url[:-6]
-    
-#     # issue request
-#     r = call_api(commits_url,tokens)
-#     r = r.json()
-#     num_commits = len(r) # length of this list correspons to the number of commits
-
-#     output = json.dumps({project_name: num_commits})
-#     producer_2.send((output).encode('utf_8'))
-    
-
-# def get_unit_tests(dictionary, language,tokens):
-#     """ 
-#     Returns boolean whether there is a unit test in directory.
-#     Returns the query url for function 'get_continuous_integration'
-    
-#     Input: dictionary, name of programming language, tokens
-#     """
-#     query_url3 = dictionary["contents_url"][0:-7] 
-#     req = call_api(query_url3,tokens)
-#     for item in req.json():
-#         if('test' in item['name']):
-#             # send language that contains unit tests to producer
-#             producer_3.send((language).encode('utf_8'))
-#             return True, query_url3
-#     return False, query_url3
-        
-        
-# def get_continuous_integration(query_url3, language,tokens):
-#     # https://docs.github.com/en/actions/learn-github-actions/understanding-github-actions    
-#     query_url4 = query_url3+".github/workflows"
-#     req = call_api(query_url4,tokens)
-#     if(req != False):
-#     # if it hasnt have workflow directory, then it will return message not found, otherwise it
-#     # will return the object with all the items in such directory (and the indexs will be integer)
-#     # message: "not found"
-#     # in this case the workflow directory doesn't exist
-#     # if it exists, there is no message, i.e., TypeError, send it to producer
-#         producer_4.send((language).encode('utf_8'))
-
-
 def call_api(query_url, tokens):
     while True:
         for token in tokens:
@@ -95,22 +46,6 @@ def call_api(query_url, tokens):
                 continue
             return req
                    
-
-# def get_programming_language(dictionary):
-#     """
-#     Returns the programming language for a given project
-    
-#     Input: dictionary that contains repository information
-#     """
-#     language = dictionary["language"]
-    
-#     # send to pulsar consumer
-#     if isinstance(language, str):
-#         producer_1.send((language).encode('utf_8'))
-#         return language
-#     else:
-#         pass
-
 
 def query_github(start_date: datetime, num_days: int, tokens: list):
     """Makes calls to github API and sends received data to consumer"""
@@ -135,20 +70,6 @@ def query_github(start_date: datetime, num_days: int, tokens: list):
                     # producer_2.send((output).encode('utf_8'))
                     producer_q134.send(json.dumps(dictionary).encode('utf_8'))
                     producer_q2.send(json.dumps(dictionary).encode('utf_8'))
-                                        
-                #     # Q1 programming languages
-                #     language = get_programming_language(dictionary)
-                    
-                #     if (language is None):
-                #         continue # break loop
-                #     # Q2 nmber of commits of project
-                #     get_num_commits(dictionary, tokens, project_name=dictionary["name"]) 
-                    
-                #     #Q3 unit tests                      
-                #     has_test, query_url3 = get_unit_tests(dictionary,language,tokens)
-                #     #Q4 CI/CD
-                #     if(has_test):                          
-                #         get_continuous_integration(query_url3,language,tokens)
 
             except KeyError as e:
                 print(e)                    
