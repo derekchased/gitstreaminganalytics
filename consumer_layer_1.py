@@ -45,6 +45,8 @@ def call_api(query_url, tokens):
             except Exception as e:
                 print(e)
             status = req.status_code
+            if (status == 409):
+                break
             if (status == 404):
                 return False
             if(status != 200):
@@ -52,6 +54,7 @@ def call_api(query_url, tokens):
                 print(req.status_code)
                 continue
             return req
+        break
                    
                    
 def get_num_commits(dictionary, tokens, project_name):
