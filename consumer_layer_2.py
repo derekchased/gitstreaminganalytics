@@ -1,7 +1,7 @@
 import pulsar
 import json
 import requests
-
+import time
 
 # Create a pulsar client by supplying ip address and port
 client = pulsar.Client('pulsar://localhost:6650')
@@ -116,6 +116,8 @@ def get_continuous_integration(query_url3, language,tokens):
 
 ## CONSUMER AND PRODUCER ##
 tokens = get_tokens(["githubtoken_jonas.txt", "githubtoken_alvaro.txt"])
+start = time.time()
+
 while True:
     msg = consumer.receive()
     try:
@@ -132,23 +134,25 @@ while True:
             get_continuous_integration(query_url3,language,tokens)
         consumer.acknowledge(msg)
         
+        end = time.time()
+        print('curr time: ', end-start)
         
-        # prints
-        print('current RESULTS_q1: ')
-        for key, val in RESULTS_q1.items():
-            print(key, val) 
+        # # prints
+        # print('current RESULTS_q1: ')
+        # for key, val in RESULTS_q1.items():
+        #     print(key, val) 
         
-        print("\n")
+        # print("\n")
         
-        print('current RESULTS_q3: ')
-        for key, val in RESULTS_q3.items():
-            print(key, val) 
+        # print('current RESULTS_q3: ')
+        # for key, val in RESULTS_q3.items():
+        #     print(key, val) 
         
-        print("\n")
+        # print("\n")
   
-        print('current RESULTS_q4: ')
-        for key, val in RESULTS_q4.items():
-            print(key, val) 
+        # print('current RESULTS_q4: ')
+        # for key, val in RESULTS_q4.items():
+        #     print(key, val) 
 
     except:
         consumer.negative_acknowledge(msg)

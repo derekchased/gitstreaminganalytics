@@ -44,6 +44,7 @@ def call_api(query_url, tokens):
                 return False
             if(status != 200):
                 print('changing token')
+                print('req.status_code')
                 continue
             return req
                    
@@ -96,9 +97,9 @@ while True:
         
         # SENDS it to next layer (consumer_layer_2)
         get_num_commits(dictionary, tokens, project_name=dictionary["name"])
-        print('current RESULTS: ')
-        for key, val in RESULTS.items():
-            print(key, val) 
+        # print('current RESULTS: ')
+        # for key, val in RESULTS.items():
+        #     print(key, val) 
         consumer_layer_1.acknowledge(msg)
         end = time.time()
         print('curr time: ', end-start)
