@@ -67,7 +67,7 @@ def get_num_commits(dictionary, tokens, project_name):
     #producer_layer_1.send((output).encode('utf_8'))
     
     # store data here
-    data_json = json.loads(data)
+    data_json = json.loads(output)
     project_name = list(data_json.keys())[0]
     num_commits = data_json[project_name]        
 
@@ -94,12 +94,11 @@ while True:
         
         # SENDS it to next layer (consumer_layer_2)
         get_num_commits(dictionary, tokens, project_name=dictionary["name"])
-        
         print('current RESULTS: ')
         for key, val in RESULTS.items():
             print(key, val) 
-        
         consumer_layer_1.acknowledge(msg)
 
     except:
         consumer_layer_1.negative_acknowledge(msg)
+        
