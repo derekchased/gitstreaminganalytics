@@ -64,14 +64,14 @@ def get_num_commits(dictionary, tokens, project_name):
     r = r.json()
     num_commits = len(r) # length of this list correspons to the number of commits
 
-    output = json.dumps({project_name: num_commits})
+    #output = json.dumps({project_name: num_commits})
     
     #producer_layer_1.send((output).encode('utf_8'))
     
     # store data here
-    data_json = json.loads(output)
-    project_name = list(data_json.keys())[0]
-    num_commits = data_json[project_name]        
+    #data_json = json.loads(output)
+    # project_name = list(data_json.keys())[0]
+    # num_commits = data_json[project_name]        
 
     store_results(project_name,num_commits)
 
