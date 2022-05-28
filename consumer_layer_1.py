@@ -44,7 +44,7 @@ def call_api(query_url, tokens):
                 return False
             if(status != 200):
                 print('changing token')
-                print('req.status_code')
+                print(req.status_code)
                 continue
             return req
                    
