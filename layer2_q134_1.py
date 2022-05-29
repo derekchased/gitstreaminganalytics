@@ -107,14 +107,10 @@ while True:
         count+=1
         print(count)
         # Q3 Tests
-        if (language is not None):  
-            count+=1
-            print(count)              
+        if (language is not None):             
             has_test, query_url3 = get_unit_tests(dictionary,language,tokens)
             #Q4 CI/CD
-            if(has_test): 
-                count+=1
-                print(count)                         
+            if(has_test):           
                 get_continuous_integration(query_url3,language,tokens)
         consumer.acknowledge(msg)
         
