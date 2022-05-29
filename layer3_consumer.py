@@ -10,10 +10,10 @@ RESULTS = {}
 client = pulsar.Client('pulsar://localhost:6650')
 
 # Subscribe to a topic and subscription
-consumer_q1 = client.subscribe('topic_q1_2', subscription_name='github_sub_1', consumer_type=pulsar.ConsumerType.Shared)
+consumer_q1 = client.subscribe('topic_q1_2_1', subscription_name='github_sub_1', consumer_type=pulsar.ConsumerType.Shared)
 consumer_q2 = client.subscribe('topic_q2_2', subscription_name='github_sub_1', consumer_type=pulsar.ConsumerType.Shared)
-consumer_q3 = client.subscribe('topic_q3_2', subscription_name='github_sub_1', consumer_type=pulsar.ConsumerType.Shared)
-consumer_q4 = client.subscribe('topic_q4_2', subscription_name='github_sub_1', consumer_type=pulsar.ConsumerType.Shared)
+consumer_q3 = client.subscribe('topic_q3_2_1', subscription_name='github_sub_1', consumer_type=pulsar.ConsumerType.Shared)
+consumer_q4 = client.subscribe('topic_q4_2_1', subscription_name='github_sub_1', consumer_type=pulsar.ConsumerType.Shared)
 
 
 # mongodb client

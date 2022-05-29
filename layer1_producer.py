@@ -11,7 +11,7 @@ client = pulsar.Client('pulsar://localhost:6650')
 
 # Create a producer on the topic that consumer can subscribe to
 producer_q2 = client.create_producer('topic_q2_1')
-producer_q134 = client.create_producer('topic_q134_1')
+producer_q134 = client.create_producer('topic_q134_1_1')
 
 
 def get_tokens(filepaths: list):
