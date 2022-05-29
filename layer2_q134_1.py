@@ -60,8 +60,6 @@ def get_programming_language(dictionary):
     
     # send to pulsar consumer
     if isinstance(language, str):
-        count+=1
-        print(count)
         producer_q1_layer2.send((language).encode('utf_8'))
         return language
     else:
@@ -79,8 +77,6 @@ def get_unit_tests(dictionary, language,tokens):
     for item in req.json():
         if('test' in item['name']):
             # send language that contains unit tests to producer
-            count+=1
-            print(count)
             producer_q3_layer2.send((language).encode('utf_8'))
             return True, query_url3
     return False, query_url3
@@ -95,8 +91,6 @@ def get_continuous_integration(query_url3, language,tokens):
     # in this case the workflow directory doesn't exist
     # if it exists, there is no message, i.e., TypeError, send it to producer
     if(req != False):
-        count+=1
-        print(count)
         producer_q4_layer2.send((language).encode('utf_8'))
 
 ## CONSUMER AND PRODUCER ##
@@ -110,17 +104,22 @@ while True:
         dictionary = json.loads(data)
         
         language = get_programming_language(dictionary)        
-        
+        count+=1
+        print(count)
         # Q3 Tests
-        if (language is not None):                
+        if (language is not None):  
+            count+=1
+            print(count)              
             has_test, query_url3 = get_unit_tests(dictionary,language,tokens)
             #Q4 CI/CD
-            if(has_test):                          
+            if(has_test): 
+                count+=1
+                print(count)                         
                 get_continuous_integration(query_url3,language,tokens)
         consumer.acknowledge(msg)
         
-        end = time.time()
-        print('curr time: ', end-start)
+        # end = time.time()
+        # print('curr time: ', end-start)
 
     except:
         consumer.negative_acknowledge(msg)
