@@ -6,7 +6,7 @@ import time
 # Create a pulsar client by supplying ip address and port
 client = pulsar.Client('pulsar://localhost:6650')
 # Subscribe to a topic and subscription
-consumer = client.subscribe('topic_q134_1', subscription_name='github_sub_1')
+consumer = client.subscribe('topic_q134_1', subscription_name='github_sub_1', consumer_type=pulsar.ConsumerType.Shared)
 
 # create producer 
 producer_q1_layer2 = client.create_producer('topic_q1_2')
