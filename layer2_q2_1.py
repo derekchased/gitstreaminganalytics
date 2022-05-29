@@ -6,19 +6,11 @@ import time
 # Create a pulsar client by supplying ip address and port
 client = pulsar.Client('pulsar://localhost:6650')
 # Subscribe to a topic and subscription
-consumer = client.subscribe('topic_q2', subscription_name='github_sub_1', consumer_type=pulsar.ConsumerType.Shared)
+consumer = client.subscribe('topic_q2_layer12', subscription_name='github_sub_1', consumer_type=pulsar.ConsumerType.Shared)
 
 # create producer 
-#producer_layer_2 = client.create_producer('')
+producer_q2_layer2 = client.create_producer('topic_q2_layer23')
 
-RESULTS_q2 = {}
-def store_results(project_name,num_commits):
-    if project_name not in RESULTS_q2.keys():
-        RESULTS_q2[project_name] = num_commits
-    else:
-        RESULTS_q2[project_name] += num_commits
-        
-        
         
 def get_tokens(filepaths: list):
     """
@@ -74,10 +66,9 @@ def get_num_commits(dictionary, tokens, project_name):
         r = r.json()
         num_commits = len(r) # length of this list corresponds to the number of commits
 
-        #output = json.dumps({project_name: num_commits})
-        #producer_2.send((output).encode('utf_8'))
-        store_results(project_name, num_commits)
-
+        output = json.dumps({project_name: num_commits})
+        producer_q2_layer2.send((output).encode('utf_8'))
+        
 
 ## CONSUMER AND PRODUCER ##
 tokens = get_tokens(["githubtoken_jonas.txt", "githubtoken_alvaro.txt"])

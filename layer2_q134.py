@@ -6,32 +6,12 @@ import time
 # Create a pulsar client by supplying ip address and port
 client = pulsar.Client('pulsar://localhost:6650')
 # Subscribe to a topic and subscription
-consumer = client.subscribe('question134', subscription_name='github_sub_1')
+consumer = client.subscribe('topic_q134_layer12', subscription_name='github_sub_1')
 
 # create producer 
-#producer_layer_2 = client.create_producer('')
-
-RESULTS_q1 = {}
-def store_programming_languages(data):
-    if data not in RESULTS_q1.keys():
-        RESULTS_q1[data] = 1
-    else:
-        RESULTS_q1[data] += 1
-        
-RESULTS_q3 = {}
-def store_tests(data):
-    if data not in RESULTS_q3.keys():
-        RESULTS_q3[data] = 1
-    else:
-        RESULTS_q3[data] += 1
-        
-RESULTS_q4 = {}
-def store_ci(data):
-    if data not in RESULTS_q4.keys():
-        RESULTS_q4[data] = 1
-    else:
-        RESULTS_q4[data] += 1
-        
+producer_q1_layer2 = client.create_producer('topic_q1_layer23')
+producer_q3_layer2 = client.create_producer('topic_q3_layer23')
+producer_q4_layer2 = client.create_producer('topic_q4_layer23')
         
         
 def get_tokens(filepaths: list):
@@ -77,8 +57,7 @@ def get_programming_language(dictionary):
     
     # send to pulsar consumer
     if isinstance(language, str):
-        # producer_layer_2.send((language).encode('utf_8'))
-        store_programming_languages(language)
+        producer_q1_layer2.send((language).encode('utf_8'))
         return language
     else:
         pass
@@ -95,8 +74,7 @@ def get_unit_tests(dictionary, language,tokens):
     for item in req.json():
         if('test' in item['name']):
             # send language that contains unit tests to producer
-            #producer_layer_2.send((language).encode('utf_8'))
-            store_tests(language)
+            producer_q3_layer2.send((language).encode('utf_8'))
             return True, query_url3
     return False, query_url3
 
@@ -104,15 +82,13 @@ def get_continuous_integration(query_url3, language,tokens):
     # https://docs.github.com/en/actions/learn-github-actions/understanding-github-actions    
     query_url4 = query_url3+".github/workflows"
     req = call_api(query_url4,tokens)
-    if(req != False):
     # if it hasnt have workflow directory, then it will return message not found, otherwise it
     # will return the object with all the items in such directory (and the indexs will be integer)
     # message: "not found"
     # in this case the workflow directory doesn't exist
     # if it exists, there is no message, i.e., TypeError, send it to producer
-        
-        #producer_4.send((language).encode('utf_8'))
-        store_ci(language)
+    if(req != False):
+        producer_q4_layer2.send((language).encode('utf_8'))
 
 ## CONSUMER AND PRODUCER ##
 tokens = get_tokens(["githubtoken_jonas.txt", "githubtoken_alvaro.txt"])
@@ -136,23 +112,6 @@ while True:
         
         end = time.time()
         print('curr time: ', end-start)
-        
-        # # prints
-        # print('current RESULTS_q1: ')
-        # for key, val in RESULTS_q1.items():
-        #     print(key, val) 
-        
-        # print("\n")
-        
-        # print('current RESULTS_q3: ')
-        # for key, val in RESULTS_q3.items():
-        #     print(key, val) 
-        
-        # print("\n")
-  
-        # print('current RESULTS_q4: ')
-        # for key, val in RESULTS_q4.items():
-        #     print(key, val) 
 
     except:
         consumer.negative_acknowledge(msg)
