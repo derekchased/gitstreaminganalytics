@@ -12,8 +12,11 @@ consumer = client.subscribe('topic_q134_1_1', subscription_name='github_sub_1', 
 producer_q1_layer2 = client.create_producer('topic_q1_2_1')
 producer_q3_layer2 = client.create_producer('topic_q3_2_1')
 producer_q4_layer2 = client.create_producer('topic_q4_2_1')
+
         
-        
+count=0
+
+
 def get_tokens(filepaths: list):
     """
     takes list of strings of filepaths to .txt files that contain github token
@@ -57,6 +60,8 @@ def get_programming_language(dictionary):
     
     # send to pulsar consumer
     if isinstance(language, str):
+        count+=1
+        print(count)
         producer_q1_layer2.send((language).encode('utf_8'))
         return language
     else:
@@ -74,6 +79,8 @@ def get_unit_tests(dictionary, language,tokens):
     for item in req.json():
         if('test' in item['name']):
             # send language that contains unit tests to producer
+            count+=1
+            print(count)
             producer_q3_layer2.send((language).encode('utf_8'))
             return True, query_url3
     return False, query_url3
@@ -88,6 +95,8 @@ def get_continuous_integration(query_url3, language,tokens):
     # in this case the workflow directory doesn't exist
     # if it exists, there is no message, i.e., TypeError, send it to producer
     if(req != False):
+        count+=1
+        print(count)
         producer_q4_layer2.send((language).encode('utf_8'))
 
 ## CONSUMER AND PRODUCER ##

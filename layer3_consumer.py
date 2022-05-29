@@ -49,8 +49,9 @@ def store_q4(data):
     else:
         RESULTS_Q4[data] += 1
 
-start = time.time()
 
+count=0
+start = time.time()
 while True:
     msg_q1 = consumer_q1.receive()
     msg_q2 = consumer_q2.receive()
@@ -58,7 +59,8 @@ while True:
     msg_q4 = consumer_q4.receive()
     
     if msg_q1:
-        print('received msg Q1')
+        count+=1
+        print('count: ', count)
         try:
             data_q1 = msg_q1.data()
             store_q1(data_q1)
@@ -70,7 +72,8 @@ while True:
         except:
             consumer_q1.negative_acknowledge(msg_q1)       
     if msg_q2:
-        print('received msg Q1')
+        count+=1
+        print('count: ', count)
         try:
             data_q2 = msg_q2.data()
             
@@ -84,7 +87,8 @@ while True:
             consumer_q2.negative_acknowledge(msg_q2)
             
     if msg_q3:
-        print('received msg Q3')
+        count+=1
+        print('count: ', count)
         try:
             data_q3 = msg_q3.data()
             store_q3(data_q3)
@@ -94,7 +98,8 @@ while True:
             consumer_q3.negative_acknowledge(msg_q3)
             
     if msg_q4:
-        print('received msg Q4')
+        count+=1
+        print('count: ', count)
         try:
             data_q4 = msg_q4.data()
             store_q4(data_q4)
