@@ -6,10 +6,10 @@ import time
 # Create a pulsar client by supplying ip address and port
 client = pulsar.Client('pulsar://localhost:6650')
 # Subscribe to a topic and subscription
-consumer = client.subscribe('topic_q2_layer12', subscription_name='github_sub_1', consumer_type=pulsar.ConsumerType.Shared)
+consumer = client.subscribe('topic_q2_1', subscription_name='github_sub_1', consumer_type=pulsar.ConsumerType.Shared)
 
 # create producer 
-producer_q2_layer2 = client.create_producer('topic_q2_layer23')
+producer_q2_layer2 = client.create_producer('topic_q2_2')
     
         
 def get_tokens(filepaths: list):

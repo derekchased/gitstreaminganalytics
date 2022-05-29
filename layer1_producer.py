@@ -10,8 +10,8 @@ import json
 client = pulsar.Client('pulsar://localhost:6650')
 
 # Create a producer on the topic that consumer can subscribe to
-producer_q2 = client.create_producer('topic_q2_layer12')
-producer_q134 = client.create_producer('topic_q134_layer12')
+producer_q2 = client.create_producer('topic_q2_1')
+producer_q134 = client.create_producer('topic_q134_1')
 
 
 def get_tokens(filepaths: list):
