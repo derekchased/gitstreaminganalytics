@@ -20,31 +20,33 @@ consumer_q4 = client.subscribe('topic_q4_layer23', subscription_name='github_sub
 # results_db = mongo_db_client["results_database"]
 # language_collection = results_db["languages"]
 
-
+RESULTS_Q1 = {}
 def store_q1(data):
-    if data not in RESULTS.keys():
-        RESULTS[data] = 1
+    if data not in RESULTS_Q1.keys():
+        RESULTS_Q1[data] = 1
     else:
-        RESULTS[data] += 1
+        RESULTS_Q1[data] += 1
         
-        
+RESULTS_Q2 = {}   
 def store_q2(project_name, num_commits):
-    if project_name not in RESULTS.keys():
-        RESULTS[project_name] = num_commits
+    if project_name not in RESULTS_Q2.keys():
+        RESULTS_Q2[project_name] = num_commits
     else:
-        RESULTS[project_name] += num_commits
+        RESULTS_Q2[project_name] += num_commits
         
+RESULTS_Q3 = {}
 def store_q3(data):
-    if data not in RESULTS.keys():
-        RESULTS[data] = 1
+    if data not in RESULTS_Q3.keys():
+        RESULTS_Q3[data] = 1
     else:
-        RESULTS[data] += 1
+        RESULTS_Q3[data] += 1
         
+RESULTS_Q4 = {}
 def store_q4(data):
-    if data not in RESULTS.keys():
-        RESULTS[data] = 1
+    if data not in RESULTS_Q4.keys():
+        RESULTS_Q4[data] = 1
     else:
-        RESULTS[data] += 1
+        RESULTS_Q4[data] += 1
 
 
 while True:
@@ -57,6 +59,11 @@ while True:
         try:
             data_q1 = msg_q1.data()
             store_q1(data_q1)
+            
+            print('current RESULTS_Q1: ')
+            for key, val in RESULTS_Q1.items():
+                print(key, val)
+            
             consumer_q1.acknowledge(msg_q1)
         except:
             consumer_q1.negative_acknowledge(msg_q1)       
