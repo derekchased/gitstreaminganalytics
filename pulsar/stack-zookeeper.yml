@@ -1,0 +1,48 @@
+version: '3.7'
+
+services:
+  zookeeper:
+    image: docker.io/bitnami/zookeeper:latest
+    ports:
+      - 8081:8081
+    environment:
+      - ZOO_SERVER_ID=1
+      - ALLOW_ANONYMOUS_LOGIN=yes
+      - ZOO_SERVERS=0.0.0.0:2888:3888,zookeeper2:2888:3888,zookeeper3:2888:3888
+      - ZOO_ADMIN_SERVER_PORT_NUMBER=8081
+    deploy:
+      restart_policy:
+          condition: on-failure
+      placement:
+        constraints:
+          - "node.labels.node==zk1"
+  zookeeper2:
+    image: docker.io/bitnami/zookeeper:latest
+    ports:
+      - 8082:8082
+    environment:
+      - ZOO_SERVER_ID=2
+      - ALLOW_ANONYMOUS_LOGIN=yes
+      - ZOO_SERVERS=zookeeper:2888:3888,0.0.0.0:2888:3888,zookeeper3:2888:3888
+      - ZOO_ADMIN_SERVER_PORT_NUMBER=8082
+    deploy:
+      restart_policy:
+          condition: on-failure
+      placement:
+        constraints:
+          - "node.labels.node==zk2"
+  zookeeper3:
+    image: docker.io/bitnami/zookeeper:latest
+    ports:
+      - 8083:8083
+    environment:
+      - ZOO_SERVER_ID=3
+      - ALLOW_ANONYMOUS_LOGIN=yes
+      - ZOO_SERVERS=zookeeper:2888:3888,zookeeper2:2888:3888,0.0.0.0:2888:3888
+      - ZOO_ADMIN_SERVER_PORT_NUMBER=8083
+    deploy:
+      restart_policy:
+          condition: on-failure
+      placement:
+        constraints:
+          - "node.labels.node==zk3"
