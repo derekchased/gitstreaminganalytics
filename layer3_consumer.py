@@ -1,6 +1,7 @@
 import pulsar
 import pymongo
 import json
+import time
 
 RESULTS = {}
 
@@ -48,25 +49,29 @@ def store_q4(data):
     else:
         RESULTS_Q4[data] += 1
 
+start = time.time()
 
 while True:
-    msg_q1 = consumer_q1.receive()
+    # msg_q1 = consumer_q1.receive()
     # msg_q2 = consumer_q2.receive()
-    # msg_q3 = consumer_q3.receive()
+    msg_q3 = consumer_q3.receive()
     # msg_q4 = consumer_q4.receive()
     
-    if msg_q1:
-        try:
-            data_q1 = msg_q1.data()
-            store_q1(data_q1)
+    # if msg_q1:
+    #     try:
+    #         data_q1 = msg_q1.data()
+    #         store_q1(data_q1)
             
-            print('current RESULTS_Q1: ')
-            for key, val in RESULTS_Q1.items():
-                print(key, val)
+    #         print('current RESULTS_Q1: ')
+    #         for key, val in RESULTS_Q1.items():
+    #             print(key, val)
+                
+    #         end = time.time()
+    #         print('curr time: ', end-start)
             
-            consumer_q1.acknowledge(msg_q1)
-        except:
-            consumer_q1.negative_acknowledge(msg_q1)       
+    #         consumer_q1.acknowledge(msg_q1)
+    #     except:
+    #         consumer_q1.negative_acknowledge(msg_q1)       
     # if msg_q2:
     #     try:
     #         data_q2 = msg_q2.data()
@@ -80,13 +85,17 @@ while True:
     #     except:
     #         consumer_q2.negative_acknowledge(msg_q2)
             
-    # if msg_q3:
-    #     try:
-    #         data_q3 = msg_q3.data()
-    #         store_q3(data_q3)
-    #         consumer_q3.acknowledge(msg_q3)
-    #     except:
-    #         consumer_q3.negative_acknowledge(msg_q3)
+    if msg_q3:
+        try:
+            data_q3 = msg_q3.data()
+            store_q3(data_q3)
+            
+            end = time.time()
+            print('curr time: ', end-start)
+    
+            consumer_q3.acknowledge(msg_q3)
+        except:
+            consumer_q3.negative_acknowledge(msg_q3)
             
     # if msg_q4:
     #     try:
