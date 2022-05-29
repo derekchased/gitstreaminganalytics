@@ -63,10 +63,6 @@ while True:
             data_q1 = msg_q1.data()
             store_q1(data_q1)
             
-            # print('current RESULTS_Q1: ')
-            # for key, val in RESULTS_Q1.items():
-            #     print(key, val)
-                
             end = time.time()
             print('curr time: ', end-start)
             
@@ -83,9 +79,6 @@ while True:
             num_commits = data_json[project_name]  
             store_q2(project_name, num_commits)
             
-            # end = time.time()
-            # print('curr time: ', end-start)
-    
             consumer_q2.acknowledge(msg_q2)
         except:
             consumer_q2.negative_acknowledge(msg_q2)
@@ -95,9 +88,6 @@ while True:
         try:
             data_q3 = msg_q3.data()
             store_q3(data_q3)
-            
-            # end = time.time()
-            # print('curr time: ', end-start)
     
             consumer_q3.acknowledge(msg_q3)
         except:
