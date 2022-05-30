@@ -74,21 +74,18 @@ def get_num_commits(dictionary, tokens, project_name):
 tokens = get_tokens(["githubtoken_jonas.txt", "githubtoken_alvaro.txt"])
 
 start = time.time()
-count = 0
 while True:
     msg = consumer.receive()
     try:
         data = msg.data()
         dictionary = json.loads(data)
         
-        get_num_commits(dictionary, tokens, dictionary["name"])
+        get_num_commits(dictionary, tokens, dictionary["full_name"])
         
         consumer.acknowledge(msg)
         
-        end = time.time()
-        print(end-start)
-        count+=1
-        #print('count: ', count)
+        # end = time.time()
+        # print(end-start)
         
 
     except:

@@ -6,15 +6,10 @@ import time
 # Create a pulsar client by supplying ip address and port
 client = pulsar.Client('pulsar://localhost:6650')
 # Subscribe to a topic and subscription
-consumer = client.subscribe('topic_q134_1_1', subscription_name='github_sub_1', consumer_type=pulsar.ConsumerType.Shared)
+consumer = client.subscribe('topic_q134_1', subscription_name='github_sub_1', consumer_type=pulsar.ConsumerType.Shared)
 
 # create producer 
-producer_q1_layer2 = client.create_producer('topic_q1_2_1')
-producer_q3_layer2 = client.create_producer('topic_q3_2_1')
-producer_q4_layer2 = client.create_producer('topic_q4_2_1')
-
-        
-count=0
+producer_layer2 = client.create_producer('topic_q134_2')
 
 
 def get_tokens(filepaths: list):
@@ -48,7 +43,21 @@ def call_api(query_url, tokens):
                 print('changing token')
                 continue
             return req
-                   
+ 
+ 
+def get_project_name(dictionary):
+    """
+    Returns the programming language for a given project
+    
+    Input: dictionary that contains repository information
+    """
+    project_name = dictionary["full_name"]
+    
+    if isinstance(project_name, str):
+        return project_name
+    else:
+        pass
+                      
 
 def get_programming_language(dictionary):
     """
@@ -57,13 +66,16 @@ def get_programming_language(dictionary):
     Input: dictionary that contains repository information
     """
     language = dictionary["language"]
+    project_name = get_project_name(dictionary)
     
     # send to pulsar consumer
     if isinstance(language, str):
-        producer_q1_layer2.send((language).encode('utf_8'))
+        # output = json.dumps({project_name: language})
+        # producer_q1_layer2.send((output).encode('utf_8'))
         return language
     else:
         pass
+    
     
 def get_unit_tests(dictionary, language,tokens):
     """ 
@@ -72,14 +84,19 @@ def get_unit_tests(dictionary, language,tokens):
     
     Input: dictionary, name of programming language, tokens
     """
+    has_tests = False
+    project_name = get_project_name(dictionary)
     query_url3 = dictionary["contents_url"][0:-7] 
     req = call_api(query_url3,tokens)
     for item in req.json():
         if('test' in item['name']):
             # send language that contains unit tests to producer
-            producer_q3_layer2.send((language).encode('utf_8'))
-            return True, query_url3
-    return False, query_url3
+            # output = json.dumps({project_name: language})
+            # producer_q3_layer2.send((language).encode('utf_8'))
+            has_tests = True
+            return has_tests, query_url3
+    return has_tests, query_url3
+
 
 def get_continuous_integration(query_url3, language,tokens):
     # https://docs.github.com/en/actions/learn-github-actions/understanding-github-actions    
@@ -91,27 +108,40 @@ def get_continuous_integration(query_url3, language,tokens):
     # in this case the workflow directory doesn't exist
     # if it exists, there is no message, i.e., TypeError, send it to producer
     if(req != False):
-        producer_q4_layer2.send((language).encode('utf_8'))
+        return True
+        #producer_q4_layer2.send((language).encode('utf_8'))
+    else:
+        return False # if it has no cont int
+
+def send_to_producer(dictionary, tokens):
+    project_name = get_project_name(dictionary)
+    # Q1
+    language = get_programming_language(dictionary)
+    # Q3
+    has_tests, query_url3 = get_unit_tests(dictionary, language, tokens)
+    # Q4
+    has_cont_int = False
+    if has_tests:
+        has_cont_int = get_continuous_integration(query_url3, language, tokens)
+    
+    output = json.dumps({'repository name': project_name, 
+                         'language': language,
+                         'has_tests': has_tests, 
+                         'has_cont_int': has_cont_int})
+    # send to producer
+    producer_layer2.send((output).encode('utf_8'))
+    
 
 ## CONSUMER AND PRODUCER ##
 tokens = get_tokens(["githubtoken_jonas.txt", "githubtoken_alvaro.txt"])
 start = time.time()
-
 while True:
     msg = consumer.receive()
     try:
         data = msg.data()
         dictionary = json.loads(data)
         
-        language = get_programming_language(dictionary)        
-        count+=1
-        print(count)
-        # Q3 Tests
-        if (language is not None):             
-            has_test, query_url3 = get_unit_tests(dictionary,language,tokens)
-            #Q4 CI/CD
-            if(has_test):           
-                get_continuous_integration(query_url3,language,tokens)
+        send_to_producer(dictionary, tokens)
         consumer.acknowledge(msg)
         
         # end = time.time()
