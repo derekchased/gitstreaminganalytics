@@ -69,11 +69,8 @@ while True:
         has_cont_int = data_json['has_cont_int'] # returns boolean
         
         # TODO: store  in database
-        store(project_name, language,has_tests,has_cont_int)
-        
-        count+=1
-        print('count: ', count)
-        
+        store(project_name, language, has_tests, has_cont_int)
+                    
         consumer_q134.acknowledge(msg_q2)
     except:
         consumer_q134.negative_acknowledge(msg_q2)
