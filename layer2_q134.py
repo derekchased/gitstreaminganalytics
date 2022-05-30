@@ -124,7 +124,7 @@ def send_to_producer(dictionary, tokens):
     if has_tests:
         has_cont_int = get_continuous_integration(query_url3, language, tokens)
     
-    output = json.dumps({'repository name': project_name, 
+    output = json.dumps({'project_name': project_name, 
                          'language': language,
                          'has_tests': has_tests, 
                          'has_cont_int': has_cont_int})
