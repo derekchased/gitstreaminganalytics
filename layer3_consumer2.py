@@ -37,8 +37,8 @@ while True:
         # TODO: store  in database
         store_q2(project_name, language, has_tests, has_cont_int)
         
-        for key, val in RESULTS_Q134:
-            print(key, ' ', val)
+        for k, v in RESULTS_Q134.items():
+            print(k, v)
             
         consumer_q134.acknowledge(msg_q2)
     except:

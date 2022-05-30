@@ -115,15 +115,18 @@ def get_continuous_integration(query_url3, language,tokens):
 
 def send_to_producer(dictionary, tokens):
     project_name = get_project_name(dictionary)
+    print(project_name)
     # Q1
     language = get_programming_language(dictionary)
+    print(language)
     # Q3
     has_tests, query_url3 = get_unit_tests(dictionary, language, tokens)
+    print(has_tests)
     # Q4
     has_cont_int = False
     if has_tests:
         has_cont_int = get_continuous_integration(query_url3, language, tokens)
-    
+    print(has_cont_int)
     output = json.dumps({'project_name': project_name, 
                          'language': language,
                          'has_tests': has_tests, 
@@ -144,8 +147,8 @@ while True:
         send_to_producer(dictionary, tokens)
         consumer.acknowledge(msg)
         
-        # end = time.time()
-        # print('curr time: ', end-start)
+        end = time.time()
+        print('curr time: ', end-start)
 
     except:
         consumer.negative_acknowledge(msg)
