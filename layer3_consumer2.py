@@ -10,13 +10,13 @@ client = pulsar.Client('pulsar://localhost:6650')
 consumer_q134 = client.subscribe('topic_q134_2', subscription_name='github_sub_1', consumer_type=pulsar.ConsumerType.Shared)
 
 
-RESULTS_Q2 = {}   
-def store_q2(project_name, num_commits):
-    if project_name not in RESULTS_Q2.keys():
-        RESULTS_Q2[project_name] = num_commits
-    else:
-        RESULTS_Q2[project_name] += num_commits
-   
+RESULTS_Q134 = {}   
+def store_q2(project_name, language, has_tests, has_cont_int):
+    RESULTS_Q134['project_name'] = project_name
+    RESULTS_Q134['language'] = language
+    RESULTS_Q134['has_tests'] = has_tests
+    RESULTS_Q134['has_cont_int'] = has_cont_int
+    
 
 count=0
 start = time.time()
@@ -35,11 +35,11 @@ while True:
         has_cont_int = data_json['has_cont_int'] # returns boolean
         
         # TODO: store  in database
-        # store_q2(project_name, num_commits)
+        store_q2(project_name, language, has_tests, has_cont_int)
         
-        count+=1
-        print('count: ', count)
-        
+        for key, val in RESULTS_Q134:
+            print(key, ' ', val)
+            
         consumer_q134.acknowledge(msg_q2)
     except:
         consumer_q134.negative_acknowledge(msg_q2)
