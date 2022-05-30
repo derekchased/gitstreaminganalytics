@@ -22,7 +22,7 @@ parser.add_argument("-n", "--name",
 
 parser.add_argument("-f", "--flavor", 
     help='Size of flavor',
-    choices=['s', 'm', 'l'],
+    choices=['s', 'm', 'l', 'h'],
     required=True)
 
 parser.add_argument("-s", "--sshkey", 
@@ -47,6 +47,8 @@ def convert_flavor(f):
         return "ssc.medium"
     elif f == "l":
         return "ssc.large"
+    elif f == "h":
+        return "ssc.large.highcpu"
     else:
         return f
 
