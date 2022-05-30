@@ -1,23 +1,57 @@
 import pulsar
 import json
 import time
-
+import sqlite3
+from sqlite3 import Error
 
 # Create a pulsar client by supplying ip address and port
 client = pulsar.Client('pulsar://localhost:6650')
 
 # Subscribe to a topic and subscription
 consumer_q134 = client.subscribe('topic_q134_2', subscription_name='github_sub_1', consumer_type=pulsar.ConsumerType.Shared)
+db = "gitstream.db"
+#...     CREATE TABLE IF NOT EXISTS projects (
+#...     name text PRIMARY KEY,
+#...     language text,
+#...     commits integer DEFAULT 0,
+#...     cicd integer DEFAULT 0,
+#...     test integer DEFAULT 0
+#...     ); 
+
+conn = None
+try:
+    conn = sqlite3.connect(db)
+except Error as e:
+    print(e)
 
 
-RESULTS_Q2 = {}   
-def store_q2(project_name, num_commits):
-    if project_name not in RESULTS_Q2.keys():
-        RESULTS_Q2[project_name] = num_commits
+def store(project_name, language, has_tests, has_cont_int):
+    #https://www.sqlite.org/draft/lang_UPSERT.html
+    sql = """
+            INSERT OR REPLACE into projects (
+                name,
+                language,
+                commits,
+                cicd,
+                test
+            ) VALUES (?,?,?,?,?) ON CONFLICT(name) DO UPDATE SET 
+                language=excluded.language,
+                cicd=excluded.cicd,
+                test=excluded.test;
+            """
+    cur = conn.cursor()
+    if has_tests:
+        test = 1
     else:
-        RESULTS_Q2[project_name] += num_commits
+        test = 0
+    if has_cont_int:
+        cicd = 1
+    else:  
+        cicd = 0
+    
+    cur.execute(sql,(project_name,language,0,cicd,test))
+    conn.commit()   
    
-
 count=0
 start = time.time()
 while True:
@@ -35,7 +69,7 @@ while True:
         has_cont_int = data_json['has_cont_int'] # returns boolean
         
         # TODO: store  in database
-        # store_q2(project_name, num_commits)
+        store(project_name, language,has_tests,has_cont_int)
         
         count+=1
         print('count: ', count)
