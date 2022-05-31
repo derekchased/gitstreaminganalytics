@@ -9,7 +9,7 @@ except Error as e:
     print(e)
 
 sql = """
-    CREATE TABLE IF NOT EXISTS projects (
+    CREATE TABLE projects (
     name text PRIMARY KEY,
     language text,
     commits integer DEFAULT 0,
