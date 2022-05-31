@@ -1,0 +1,164 @@
+version: '3.7'
+
+services:
+  zookeeper1:
+    image: docker.io/bitnami/zookeeper:latest
+    ports:
+      - 8090:8090
+    environment:
+      - ZOO_SERVER_ID=1
+      - ALLOW_ANONYMOUS_LOGIN=yes
+      - ZOO_SERVERS=0.0.0.0:2888:3888,zookeeper2:2888:3888,zookeeper3:2888:3888
+      - ZOO_ADMIN_SERVER_PORT_NUMBER=8090
+    deploy:
+      restart_policy:
+          condition: on-failure
+      placement:
+        constraints:
+          - "node.labels.node==zk1"
+  zookeeper2:
+    image: docker.io/bitnami/zookeeper:latest
+    ports:
+      - 8091:8091
+    environment:
+      - ZOO_SERVER_ID=2
+      - ALLOW_ANONYMOUS_LOGIN=yes
+      - ZOO_SERVERS=zookeeper1:2888:3888,0.0.0.0:2888:3888,zookeeper3:2888:3888
+      - ZOO_ADMIN_SERVER_PORT_NUMBER=8091
+    deploy:
+      restart_policy:
+          condition: on-failure
+      placement:
+        constraints:
+          - "node.labels.node==zk2"
+  zookeeper3:
+    image: docker.io/bitnami/zookeeper:latest
+    ports:
+      - 8092:8092
+    environment:
+      - ZOO_SERVER_ID=3
+      - ALLOW_ANONYMOUS_LOGIN=yes
+      - ZOO_SERVERS=zookeeper1:2888:3888,zookeeper2:2888:3888,0.0.0.0:2888:3888
+      - ZOO_ADMIN_SERVER_PORT_NUMBER=8092
+    deploy:
+      restart_policy:
+          condition: on-failure
+      placement:
+        constraints:
+          - "node.labels.node==zk3"
+  bookkeeper1:
+    image: apachepulsar/pulsar:latest
+    stdin_open: true # docker run -i
+    tty: true        
+    volumes:
+      - type: bind
+        source: /home/ubuntu/pulsar/conf/bookkeeper.conf
+        target: /pulsar/conf/bookkeeper.conf
+    # ports:
+    #   - 3181:3181
+    deploy:
+      restart_policy:
+          condition: on-failure
+      placement:
+        constraints:
+          - "node.labels.node==b1"
+  bookkeeper2:
+    image: apachepulsar/pulsar:latest
+    stdin_open: true # docker run -i
+    tty: true        
+    volumes:
+      - type: bind
+        source: /home/ubuntu/pulsar/conf/bookkeeper.conf
+        target: /pulsar/conf/bookkeeper.conf
+    deploy:
+      restart_policy:
+          condition: on-failure
+      placement:
+        constraints:
+          - "node.labels.node==b2"
+  bookkeeper3:
+    image: apachepulsar/pulsar:latest
+    stdin_open: true # docker run -i
+    tty: true        
+    volumes:
+      - type: bind
+        source: /home/ubuntu/pulsar/conf/bookkeeper.conf
+        target: /pulsar/conf/bookkeeper.conf
+    deploy:
+      restart_policy:
+          condition: on-failure
+      placement:
+        constraints:
+          - "node.labels.node==b3"
+  broker1:
+    image: apachepulsar/pulsar:latest
+    stdin_open: true # docker run -i
+    tty: true        
+    volumes:
+      - type: bind
+        source: /home/ubuntu/pulsar/conf/broker.conf
+        target: /pulsar/conf/broker.conf
+    ports:
+      # - "6660:6650"
+      - 8080:8080
+    deploy:
+      restart_policy:
+          condition: on-failure
+      placement:
+        constraints:
+          - "node.labels.node==b1"
+  broker2:
+    image: apachepulsar/pulsar:latest
+    stdin_open: true # docker run -i
+    tty: true        
+    volumes:
+      - type: bind
+        source: /home/ubuntu/pulsar/conf/broker.conf
+        target: /pulsar/conf/broker.conf
+    ports:
+      # - "6660:6650"
+      - 8081:8080
+    deploy:
+      restart_policy:
+          condition: on-failure
+      placement:
+        constraints:
+          - "node.labels.node==b2"
+  broker3:
+    image: apachepulsar/pulsar:latest
+    stdin_open: true # docker run -i
+    tty: true        
+    volumes:
+      - type: bind
+        source: /home/ubuntu/pulsar/conf/broker.conf
+        target: /pulsar/conf/broker.conf
+    ports:
+      # - "6660:6650"
+      - 8082:8080
+    deploy:
+      restart_policy:
+          condition: on-failure
+      placement:
+        constraints:
+          - "node.labels.node==b3"  
+
+  client:
+    image: apachepulsar/pulsar:latest
+    stdin_open: true # docker run -i
+    tty: true        
+    volumes:
+      - type: bind
+        source: /home/ubuntu/pulsar/conf/client.conf
+        target: /pulsar/conf/client.conf
+      # - type: bind
+        # source: /home/ubuntu/pulsarclient
+        # target: /pulsar/pulsarclient
+    # command: pip install -r requirements.txt
+    deploy:
+      replicas: 2
+      restart_policy:
+          condition: on-failure
+      placement:
+        constraints:
+          - "node.labels.node==client"  
+
