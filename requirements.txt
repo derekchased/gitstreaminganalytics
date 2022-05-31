@@ -1,5 +1,2 @@
-keystoneauth1==4.6.0
-python_keystoneclient==4.5.0
-python_novaclient==18.0.0
 requests==2.22.0
 pulsar-client==2.7.1
