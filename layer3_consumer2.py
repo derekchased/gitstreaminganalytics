@@ -40,14 +40,10 @@ def store(project_name, language, has_tests, has_cont_int):
                 cicd=excluded.cicd;
             """
     cur = conn.cursor()
-    if has_tests:
-        test = 1
-    else:
-        test = 0
-    if has_cont_int:
-        cicd = 1
-    else:  
-        cicd = 0
+
+    #cast from bool to integer bc sqlite does not have boolean type
+    test = has_tests*1
+    cicd = has_cont_int*1
 
     cur.execute(sql,(project_name,language,0,test,cicd))
     conn.commit()   
