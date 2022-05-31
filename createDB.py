@@ -13,12 +13,13 @@ sql = """
     name text PRIMARY KEY,
     language text,
     commits integer DEFAULT 0,
-    cicd integer DEFAULT 0,
-    test integer DEFAULT 0
+    test integer DEFAULT 0,
+    cicd integer DEFAULT 0
     ); 
     """
 try:
     c = conn.cursor()
+    c.execute("""DROP TABLE IF EXISTS projects;""")
     c.execute(sql)
 except Error as e:
     print(e)
