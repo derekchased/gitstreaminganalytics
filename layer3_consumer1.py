@@ -15,8 +15,8 @@ db = "gitstream.db"
 #...     name text PRIMARY KEY,
 #...     language text,
 #...     commits integer DEFAULT 0,
-#...     cicd integer DEFAULT 0,
-#...     test integer DEFAULT 0
+#...     test integer DEFAULT 0,
+#...     cicd integer DEFAULT 0
 #...     ); 
 
 conn = None
@@ -33,8 +33,8 @@ def store_q2(project_name, num_commits):
                 name,
                 language,
                 commits,
-                cicd,
-                test
+                test,
+                cicd
             ) VALUES (?,?,?,?,?) ON CONFLICT(name) DO UPDATE SET commits=excluded.commits;
             """
     cur = conn.cursor()

@@ -14,8 +14,8 @@ db = "gitstream.db"
 #...     name text PRIMARY KEY,
 #...     language text,
 #...     commits integer DEFAULT 0,
-#...     cicd integer DEFAULT 0,
-#...     test integer DEFAULT 0
+#...     test integer DEFAULT 0,
+#...     cicd integer DEFAULT 0
 #...     ); 
 
 conn = None
@@ -32,12 +32,12 @@ def store(project_name, language, has_tests, has_cont_int):
                 name,
                 language,
                 commits,
-                cicd,
-                test
+                test,
+                cicd
             ) VALUES (?,?,?,?,?) ON CONFLICT(name) DO UPDATE SET 
                 language=excluded.language,
-                cicd=excluded.cicd,
-                test=excluded.test;
+                test=excluded.test,
+                cicd=excluded.cicd;
             """
     cur = conn.cursor()
     if has_tests:
@@ -48,8 +48,8 @@ def store(project_name, language, has_tests, has_cont_int):
         cicd = 1
     else:  
         cicd = 0
-    
-    cur.execute(sql,(project_name,language,0,cicd,test))
+
+    cur.execute(sql,(project_name,language,0,test,cicd))
     conn.commit()   
    
 count=0
