@@ -84,8 +84,8 @@ while True:
         
         consumer.acknowledge(msg)
         
-        # end = time.time()
-        # print(end-start)
+        end = time.time()
+        print(end-start)
         
 
     except:
