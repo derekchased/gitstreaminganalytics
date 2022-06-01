@@ -82,7 +82,7 @@ def query_github(start_date: datetime, num_days: int, tokens: list):
 
 if __name__=="__main__":
     # get github tokens
-    tokens = get_tokens(["githubtoken_jonas.txt", "githubtoken_alvaro.txt"])
+    tokens = get_tokens(["githubtoken_jonas.txt", "githubtoken_alvaro.txt", "githubtoken_jonas_2.txt", "githubtoken_derek.txt"])
     
     start = time.time()
     # query github for next x days

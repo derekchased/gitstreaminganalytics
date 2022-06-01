@@ -71,7 +71,7 @@ def get_num_commits(dictionary, tokens, project_name):
         
 
 ## CONSUMER AND PRODUCER ##
-tokens = get_tokens(["githubtoken_jonas.txt", "githubtoken_alvaro.txt"])
+tokens = get_tokens(["githubtoken_jonas.txt", "githubtoken_alvaro.txt", "githubtoken_jonas_2.txt", "githubtoken_derek.txt"])
 
 start = time.time()
 while True:
