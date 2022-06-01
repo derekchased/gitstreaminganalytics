@@ -2,6 +2,9 @@
 import sqlite3
 from sqlite3 import Error
 
+LIMIT = 10
+
+
 # %%
 db = "gitstream.db"
 
@@ -33,7 +36,6 @@ def query(conn,sql,limit):
 conn = create_connection(db)
 
 # %%
-limit = 5
 
 #Q1. What are the top 10 programming languages based on the number of projects developed?
 sql1 = """ 
@@ -65,16 +67,16 @@ sql4 = """
 with conn:
         print("===========")
         print("Results Q1:")
-        query(conn,sql1,limit)
+        query(conn,sql1,LIMIT)
         print("===========")
         print("Results Q2:")
-        query(conn,sql2,limit)
+        query(conn,sql2,LIMIT)
         print("===========")
         print("Results Q3:")
-        query(conn,sql3,limit)
+        query(conn,sql3,LIMIT)
         print("===========")
         print("Results Q4:")
-        query(conn,sql4,limit)
+        query(conn,sql4,LIMIT)
         print("===========")
 
 
