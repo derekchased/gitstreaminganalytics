@@ -79,7 +79,7 @@ def get_num_commits(dictionary, tokens, project_name):
     # remove suffix so it can be used for api call
     
     sum_commits = 0
-    for i in range(3):
+    for i in range(1):
         commits_url = commits_url[:-6] + f"?=&per_page=100&page={i}"
         # issue request
         r = call_api(commits_url, tokens)
