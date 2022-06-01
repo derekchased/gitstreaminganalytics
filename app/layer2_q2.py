@@ -28,25 +28,45 @@ def get_tokens(filepaths: list):
     return tokens
 
 
+# def call_api(query_url, tokens):
+#     while True:
+#         for token in tokens:
+#             headers = {'Authorization': f'token {token}'}
+#             try:
+#                 req = requests.get(query_url, headers=headers)
+#             except Exception as e:
+#                 print(e)
+#             status = req.status_code
+#             if (status == 409):
+#                 break
+#             if (status == 404):
+#                 return False
+#             if(status != 200):
+#                 print('changing token')
+#                 print(req.status_code)
+#                 continue
+#             return req
+#         break
+    
+TOKEN_INDEX = 0
+
 def call_api(query_url, tokens):
-    while True:
-        for token in tokens:
-            headers = {'Authorization': f'token {token}'}
-            try:
-                req = requests.get(query_url, headers=headers)
-            except Exception as e:
-                print(e)
-            status = req.status_code
-            if (status == 409):
-                break
-            if (status == 404):
-                return False
-            if(status != 200):
-                print('changing token')
-                print(req.status_code)
-                continue
-            return req
-        break
+    global TOKEN_INDEX    
+    curr_token = tokens[TOKEN_INDEX % len(tokens)]
+       
+    headers = {'Authorization': f'token {curr_token}'}
+    try:
+        req = requests.get(query_url, headers=headers)
+        return req
+    except Exception as e:
+            print(e)
+    status = req.status_code
+    if (status == 404):
+        return False
+    if(status != 200):
+        print('changing token index')
+        TOKEN_INDEX += 1
+    return req
                    
                    
 def get_num_commits(dictionary, tokens, project_name):
@@ -60,7 +80,7 @@ def get_num_commits(dictionary, tokens, project_name):
     commits_url = commits_url[:-6]
     
     # issue request
-    r = call_api(commits_url,tokens)
+    r = call_api(commits_url+"?=&per_page=100",tokens)
     
     if r != False:
         r = r.json()
