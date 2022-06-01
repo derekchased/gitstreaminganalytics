@@ -145,11 +145,14 @@ services:
   client:
     image: apachepulsar/pulsar:latest
     stdin_open: true # docker run -i
-    tty: true        
+    tty: true # docker run -t
     volumes:
       - type: bind
         source: /home/ubuntu/pulsar/conf/client.conf
         target: /pulsar/conf/client.conf
+      - type: bind
+        source: /home/ubuntu/app
+        target: /pulsar/app
       # - type: bind
         # source: /home/ubuntu/pulsarclient
         # target: /pulsar/pulsarclient
