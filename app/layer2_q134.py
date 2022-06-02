@@ -28,42 +28,21 @@ def get_tokens(filepaths: list):
     return tokens
 
 
-# def call_api(query_url, tokens):
-#     while True:
-#         for token in tokens:
-#             headers = {'Authorization': f'token {token}'}
-#             try:
-#                 req = requests.get(query_url, headers=headers)
-#             except Exception as e:
-#                 print(e)
-#             status = req.status_code
-#             if (status == 404):
-#                 return False
-#             if(status != 200):
-#                 print('changing token')
-#                 continue
-#             return req
-
-TOKEN_INDEX = 0
-
 def call_api(query_url, tokens):
-    global TOKEN_INDEX    
-    curr_token = tokens[TOKEN_INDEX % len(tokens)]
-       
-    headers = {'Authorization': f'token {curr_token}'}
-    try:
-        req = requests.get(query_url, headers=headers)
-        return req
-    except Exception as e:
-            print(e)
-    status = req.status_code
-    if (status == 404):
-        return False
-    if(status != 200):
-        print('changing token index')
-        TOKEN_INDEX += 1
-    return req
- 
+    while True:
+        for token in tokens:
+            headers = {'Authorization': f'token {token}'}
+            try:
+                req = requests.get(query_url, headers=headers)
+            except Exception as e:
+                print(e)
+            status = req.status_code
+            if (status == 404):
+                return False
+            if(status != 200):
+                print('changing token')
+                continue
+            return req 
  
 def get_project_name(dictionary):
     """
@@ -152,7 +131,7 @@ def send_to_producer(dictionary, tokens):
     
 
 ## CONSUMER AND PRODUCER ##
-tokens = get_tokens(["githubtoken_jonas.txt", "githubtoken_alvaro.txt", "githubtoken_jonas_2.txt", "githubtoken_derek.txt"])
+tokens = get_tokens(["githubtoken_alvaro.txt", "githubtoken_jonas.txt", "githubtoken_jonas_2.txt", "githubtoken_derek.txt"])
 start = time.time()
 while True:
     msg = consumer.receive()
