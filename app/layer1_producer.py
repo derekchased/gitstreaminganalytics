@@ -82,11 +82,11 @@ def query_github(start_date: datetime, num_days: int, tokens: list):
 
 if __name__=="__main__":
     # get github tokens
-    tokens = get_tokens(["githubtoken_jonas.txt", "githubtoken_alvaro.txt", "githubtoken_jonas_2.txt", "githubtoken_derek.txt"])
+    tokens = get_tokens(["githubtoken_derek.txt", "githubtoken_jonas.txt", "githubtoken_alvaro.txt", "githubtoken_jonas_2.txt"])
     
     start = time.time()
     # query github for next x days
     # Start date: (2121, 4, 1)
-    query_github(datetime.date(2021, 7, 1), 30, tokens)
+    query_github(datetime.date(2021, 4, 1), 1, tokens)
     end = time.time()
     print('duration: ', end-start)
