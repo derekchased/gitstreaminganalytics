@@ -57,17 +57,14 @@ def get_num_commits(dictionary, tokens, project_name):
     """
     commits_url = dictionary["commits_url"] # returns of form 'https://api.github.com/repos/sindrets/diffview.nvim/commits{/sha}'
     # remove suffix so it can be used for api call
-    commits_url = commits_url[:-6]
     
+    commits_url = commits_url[:-6] + f"?=&per_page=1&page=1"
     # issue request
-    r = call_api(commits_url,tokens)
-    
-    if r != False:
-        r = r.json()
-        num_commits = len(r) # length of this list corresponds to the number of commits
-
-        output = json.dumps({project_name: num_commits})
-        producer_q2_layer2.send((output).encode('utf_8'))
+    res = call_api(commits_url, tokens)
+    if res.links:
+        num_commits = res.links['last']['url'].split('&page=')[1] 
+    output = json.dumps({project_name: num_commits})
+    producer_q2_layer2.send((output).encode('utf_8'))
         
 
 ## CONSUMER AND PRODUCER ##
