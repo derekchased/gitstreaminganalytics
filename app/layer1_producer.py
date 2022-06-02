@@ -106,6 +106,7 @@ if __name__=="__main__":
     
     start = time.time()
     # query github for next x days
-    query_github(datetime.date(2021, 4, 1), 1, tokens)
+    # Start date: (2121, 4, 1)
+    query_github(datetime.date(2021, 5, 1), 30, tokens)
     end = time.time()
     print('duration: ', end-start)

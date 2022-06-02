@@ -8,7 +8,7 @@ from sqlite3 import Error
 client = pulsar.Client('pulsar://localhost:6650')
 
 # Subscribe to a topic and subscription
-consumer_q134 = client.subscribe('topic_q134_222', subscription_name='github_sub_1', consumer_type=pulsar.ConsumerType.Shared)
+consumer_q134 = client.subscribe('topic_q134_2222', subscription_name='github_sub_1', consumer_type=pulsar.ConsumerType.Shared)
 db = "gitstream.db"
 #...     CREATE TABLE IF NOT EXISTS projects (
 #...     name text PRIMARY KEY,
