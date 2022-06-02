@@ -52,7 +52,7 @@ def query_github(start_date: datetime, num_days: int, tokens: list):
     curr_date = start_date
 
     for day in range(num_days):
-        for j in range(5):
+        for j in range(1):
             print('j == ', j)
             # set token for query request
             #headers = {'Authorization': f'token {token}'}
@@ -87,6 +87,6 @@ if __name__=="__main__":
     start = time.time()
     # query github for next x days
     # Start date: (2121, 4, 1)
-    query_github(datetime.date(2021, 5, 1), 30, tokens)
+    query_github(datetime.date(2021, 7, 1), 30, tokens)
     end = time.time()
     print('duration: ', end-start)
