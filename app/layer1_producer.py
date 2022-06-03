@@ -1,5 +1,3 @@
-#from email import header
-#from subprocess import call
 import requests
 import datetime
 import pulsar
@@ -54,8 +52,7 @@ def query_github(start_date: datetime, num_days: int, tokens: list):
     for day in range(num_days):
         for j in range(10):
             print('day == ', day)
-            # set token for query request
-            #headers = {'Authorization': f'token {token}'}
+            # API request to get main repository information
             query_url = f"https://api.github.com/search/repositories?q=created:{curr_date}..{curr_date}&per_page=100&page={j}"
             req = call_api(query_url, tokens)
             req_json  = req.json()
@@ -65,9 +62,6 @@ def query_github(start_date: datetime, num_days: int, tokens: list):
 
                 # iterate through list and send 'language' value to consumer
                 for dictionary in ls_of_dicts:
-                    
-                    # output = json.dumps({project_name: num_commits})
-                    # producer_2.send((output).encode('utf_8'))
                     producer_q134.send(json.dumps(dictionary).encode('utf_8'))
                     producer_q2.send(json.dumps(dictionary).encode('utf_8'))
 
@@ -86,6 +80,6 @@ if __name__=="__main__":
     
     start = time.time()
     # query github for next x days
-    query_github(datetime.date(2021, 5, 1), 1, tokens)
+    query_github(datetime.date(2021, 5, 1), 365, tokens)
     end = time.time()
     print('duration: ', end-start)

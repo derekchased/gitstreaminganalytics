@@ -11,14 +11,6 @@ client = pulsar.Client('pulsar://localhost:6650')
 consumer_q2 = client.subscribe('topic_q2_2', subscription_name='github_sub_1', consumer_type=pulsar.ConsumerType.Shared)
 db = "gitstream.db"
 
-#...     CREATE TABLE IF NOT EXISTS projects (
-#...     name text PRIMARY KEY,
-#...     language text,
-#...     commits integer DEFAULT 0,
-#...     test integer DEFAULT 0,
-#...     cicd integer DEFAULT 0
-#...     ); 
-
 conn = None
 try:
     conn = sqlite3.connect(db)
@@ -41,8 +33,6 @@ def store_q2(project_name, num_commits):
     cur.execute(sql,(project_name,"",num_commits,0,0))
     conn.commit()   
 
-count=0
-start = time.time()
 while True:
     msg_q2 = consumer_q2.receive()
 
@@ -53,11 +43,8 @@ while True:
         data_json = json.loads(data_q2)
         project_name = list(data_json.keys())[0]
         num_commits = data_json[project_name]  
-        # TODO: Store in Database
+        # store in DB
         store_q2(project_name, num_commits)
-        
-        count+=1
-        print('count: ', count)
         
         consumer_q2.acknowledge(msg_q2)
     except:

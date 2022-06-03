@@ -1,7 +1,6 @@
 import pulsar
 import json
 import requests
-import time
 
 # Create a pulsar client by supplying ip address and port
 client = pulsar.Client('pulsar://localhost:6650')
@@ -57,8 +56,7 @@ def get_num_commits(dictionary, tokens, project_name):
     """
     commits_url = dictionary["commits_url"] # returns of form 'https://api.github.com/repos/sindrets/diffview.nvim/commits{/sha}'
     # remove suffix so it can be used for api call
-    
-    commits_url = commits_url[:-6] + f"?=&per_page=1&page=1"
+    commits_url = commits_url[:-6] + f"?=&per_page=1&page=1" 
     # issue request
     res = call_api(commits_url, tokens)
     if res.links:
@@ -67,10 +65,8 @@ def get_num_commits(dictionary, tokens, project_name):
     producer_q2_layer2.send((output).encode('utf_8'))
         
 
-## CONSUMER AND PRODUCER ##
 tokens = get_tokens(["githubtoken_jonas.txt", "githubtoken_alvaro.txt"])
-
-start = time.time()
+## CONSUMER AND PRODUCER ##
 while True:
     msg = consumer.receive()
     try:
@@ -80,11 +76,7 @@ while True:
         get_num_commits(dictionary, tokens, dictionary["full_name"])
         
         consumer.acknowledge(msg)
-        
-        # end = time.time()
-        # print(end-start)
-        
-
+    
     except:
         consumer.negative_acknowledge(msg)
         

@@ -1,7 +1,6 @@
 import pulsar
 import json
 import requests
-import time
 
 # Create a pulsar client by supplying ip address and port
 client = pulsar.Client('pulsar://localhost:6650')
@@ -70,14 +69,12 @@ def get_programming_language(dictionary):
     
     # send to pulsar consumer
     if isinstance(language, str):
-        # output = json.dumps({project_name: language})
-        # producer_q1_layer2.send((output).encode('utf_8'))
         return language
     else:
         pass
     
     
-def get_unit_tests(dictionary, language,tokens):
+def get_unit_tests(dictionary,tokens):
     """ 
     Returns boolean whether there is a unit test in directory.
     Returns the query url for function 'get_continuous_integration'
@@ -90,15 +87,12 @@ def get_unit_tests(dictionary, language,tokens):
     req = call_api(query_url3,tokens)
     for item in req.json():
         if('test' in item['name']):
-            # send language that contains unit tests to producer
-            # output = json.dumps({project_name: language})
-            # producer_q3_layer2.send((language).encode('utf_8'))
             has_tests = True
             return has_tests, query_url3
     return has_tests, query_url3
 
 
-def get_continuous_integration(query_url3, language,tokens):
+def get_continuous_integration(query_url3 ,tokens):
     # https://docs.github.com/en/actions/learn-github-actions/understanding-github-actions    
     query_url4 = query_url3+".github/workflows"
     req = call_api(query_url4,tokens)
@@ -109,24 +103,21 @@ def get_continuous_integration(query_url3, language,tokens):
     # if it exists, there is no message, i.e., TypeError, send it to producer
     if(req != False):
         return True
-        #producer_q4_layer2.send((language).encode('utf_8'))
     else:
         return False # if it has no cont int
 
 def send_to_producer(dictionary, tokens):
     project_name = get_project_name(dictionary)
-    print(project_name)
     # Q1
     language = get_programming_language(dictionary)
-    print(language)
     # Q3
-    has_tests, query_url3 = get_unit_tests(dictionary, language, tokens)
+    has_tests, query_url3 = get_unit_tests(dictionary, tokens)
     print(has_tests)
     # Q4
     has_cont_int = False
     if has_tests:
-        has_cont_int = get_continuous_integration(query_url3, language, tokens)
-    print(has_cont_int)
+        has_cont_int = get_continuous_integration(query_url3, tokens)
+
     output = json.dumps({'project_name': project_name, 
                          'language': language,
                          'has_tests': has_tests, 
@@ -137,7 +128,6 @@ def send_to_producer(dictionary, tokens):
 
 ## CONSUMER AND PRODUCER ##
 tokens = get_tokens(["githubtoken_jonas.txt", "githubtoken_alvaro.txt"])
-start = time.time()
 while True:
     msg = consumer.receive()
     try:
@@ -146,9 +136,6 @@ while True:
         
         send_to_producer(dictionary, tokens)
         consumer.acknowledge(msg)
-        
-        end = time.time()
-        print('curr time: ', end-start)
 
     except:
         consumer.negative_acknowledge(msg)
