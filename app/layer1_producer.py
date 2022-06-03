@@ -29,6 +29,7 @@ def get_tokens(filepaths: list):
 
 
 def call_api(query_url, tokens):
+    """changes token if API limit is exceeded"""
     while True:
         for token in tokens:
             headers = {'Authorization': f'token {token}'}

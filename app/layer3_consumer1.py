@@ -36,7 +36,6 @@ def store_q2(project_name, num_commits):
 while True:
     msg_q2 = consumer_q2.receive()
 
-   
     try:
         data_q2 = msg_q2.data()
         
