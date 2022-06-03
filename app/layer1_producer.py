@@ -52,7 +52,7 @@ def query_github(start_date: datetime, num_days: int, tokens: list):
     curr_date = start_date
 
     for day in range(num_days):
-        for j in range(1):
+        for j in range(10):
             print('j == ', j)
             # set token for query request
             #headers = {'Authorization': f'token {token}'}
