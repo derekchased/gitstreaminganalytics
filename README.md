@@ -102,3 +102,7 @@ You now have a usable Pulsar cluster and can submit any pulsar client to it.
 ### Step 9
 
 On the pulsar client...
+
+1) run layer3_consumer1/2
+2) run layer2_q134/q2
+3) run layer1_producer
