@@ -101,9 +101,4 @@ You now have a usable Pulsar cluster and can submit any pulsar client to it.
 
 ### Step 9
 
-On the pulsar client, run 
-
-```
-nohup bin/pulsar broker
-```
-
+On the pulsar client...
